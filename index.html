@@ -4,56 +4,116 @@
 <meta charset="UTF-8">
 <title>Data Penyaluran TPG</title>
 <style>
-    body{font-family:Arial;background:#f3f6f9;text-align:center;padding:20px;}
-    .box{
-        width:450px;margin:12px auto;padding:18px;border-radius:8px;
-        color:white;font-size:20px;font-weight:bold;
+    body{
+        font-family: Arial, sans-serif;
+        background:#eef2f6;
+        text-align:center;
+        padding:20px;
+        margin:0;
     }
+
+    h2{
+        margin-bottom:5px;
+        color:#1d3557;
+    }
+
+    h3{
+        margin-top:0;
+        color:#457b9d;
+        font-weight:500;
+    }
+
+    .container{
+        max-width:500px;
+        margin:0 auto;
+    }
+
+    .box{
+        width:100%;
+        padding:18px;
+        border-radius:12px;
+        margin:12px 0;
+        color:white;
+        font-size:20px;
+        font-weight:bold;
+        box-shadow:0 3px 10px rgba(0,0,0,0.12);
+        transition:.2s;
+    }
+
+    .box:hover{
+        transform:scale(1.02);
+    }
+
     .blue{background:#2F6CC6;}
     .orange{background:#f39c12;}
     .green{background:#27ae60;}
-    .yellow{background:#f1c40f;color:#333;font-weight:700;}
-    .footer{
-        margin-top:20px;font-size:18px;padding:10px;
-        display:inline-block;border:2px solid #1d3557;border-radius:8px;
+    .yellow{
+        background:#f1c40f;
+        color:#333;
+        font-weight:700;
     }
+
+    /* Tombol Detil */
     a.detil{
-        display:inline-block;background:#34495e;color:white;
-        padding:12px 20px;margin-top:20px;border-radius:6px;
-        font-size:18px;text-decoration:none;
+        display:inline-block;
+        background:#1d3557;
+        color:white;
+        padding:14px 26px;
+        margin-top:25px;
+        border-radius:8px;
+        font-size:18px;
+        font-weight:bold;
+        text-decoration:none;
+        box-shadow:0 3px 10px rgba(0,0,0,0.2);
+        transition:.2s;
+    }
+
+    a.detil:hover{
+        background:#16324f;
+        transform:scale(1.05);
+    }
+
+    /* Responsif untuk HP */
+    @media(max-width:480px){
+        .box{font-size:18px;}
+        a.detil{font-size:16px;padding:12px 22px;}
     }
 </style>
 </head>
 <body>
 
-<h2>Data Penyaluran Tunjangan Profesi Guru KPPN Painan</h2>
-<h3>Periode Januari s.d. November 2025</h3>
+<h2>Data Penyaluran Tunjangan Profesi Guru</h2>
+<h3>KPPN Painan • Jan–Nov 2025</h3>
 
-<div class="box blue">Total TPG Disalurkan<br>Rp <span id="total_tpg">...</span></div>
-<div class="box orange">Potongan JKN PNS<br>Rp <span id="jkn_pns">...</span></div>
-<div class="box green">Potongan JKN P3K<br>Rp <span id="jkn_p3k">...</span></div>
-<div class="box yellow">Potongan PPh<br>Rp <span id="pph">...</span></div>
+<div class="container">
+    <div class="box blue">Total TPG Disalurkan<br>Rp <span id="total_tpg">...</span></div>
+    <div class="box orange">Potongan JKN PNS<br>Rp <span id="jkn_pns">...</span></div>
+    <div class="box green">Potongan JKN P3K<br>Rp <span id="jkn_p3k">...</span></div>
+    <div class="box yellow">Potongan PPh<br>Rp <span id="pph">...</span></div>
+</div>
 
-<br>
-
-<a class="detil" id="detailLink" href="#" target="_blank">Detil</a>
+<a class="detil" id="detailLink" href="#" target="_blank">Lihat Detil</a>
 
 <script>
-// GANTI dengan URL Web App Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbxreZxVCaYLijcep6uVLveLAbX5tOK-yMAyLSPzd3OaPHSpP3SHe8jUp9bmqYIPf2Iq/exec";
 
 async function loadData(){
-    const response = await fetch(API_URL);
-    const data = await response.json();
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
-    const formatRupiah = n => n.toLocaleString("id-ID");
+        const formatRupiah = n => n.toLocaleString("id-ID");
 
-    document.getElementById("total_tpg").innerText = formatRupiah(data.totalTPG);
-    document.getElementById("jkn_pns").innerText = formatRupiah(data.totalJknPns);
-    document.getElementById("jkn_p3k").innerText = formatRupiah(data.totalJknP3k);
-    document.getElementById("pph").innerText = formatRupiah(data.totalPPh);
+        document.getElementById("total_tpg").innerText = formatRupiah(data.totalTPG);
+        document.getElementById("jkn_pns").innerText = formatRupiah(data.totalJknPns);
+        document.getElementById("jkn_p3k").innerText = formatRupiah(data.totalJknP3K);
+        document.getElementById("pph").innerText = formatRupiah(data.totalPPh);
 
-    document.getElementById("detailLink").href = data.linkDrive;
+        document.getElementById("detailLink").href = data.linkDrive;
+
+    } catch (e){
+        console.error("Gagal memuat data:", e);
+    }
 }
 
 loadData();
