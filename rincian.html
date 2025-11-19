@@ -19,8 +19,6 @@
     margin-bottom:25px;
     text-decoration:underline;
   }
-
-  /* FILTER BOX */
   .filter-box {
     max-width:850px;
     margin:auto;
@@ -51,8 +49,6 @@
     background:#16324f;
     transform:scale(1.03);
   }
-
-  /* TABLE */
   .table-wrapper {
     max-width:1100px;
     margin:30px auto;
@@ -82,6 +78,10 @@
   tr:nth-child(even) {
     background:#fafafa;
   }
+  tfoot td {
+    font-weight:bold;
+    background:#eef3fa;
+  }
 </style>
 </head>
 
@@ -89,7 +89,6 @@
 
 <h2>Rincian Penyaluran TPG KPPN Painan</h2>
 
-<!-- FILTER BOX -->
 <div class="filter-box">
   <span>Periode</span>
   <select id="bulanAwal"></select>
@@ -102,7 +101,6 @@
   <button onclick="loadData()">Tampilkan</button>
 </div>
 
-<!-- TABLE -->
 <div class="table-wrapper">
   <table id="tabelData">
     <thead>
@@ -119,14 +117,20 @@
     <tbody>
       <tr><td colspan="7">Memuat data...</td></tr>
     </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">TOTAL</td>
+        <td id="sumTotalPenyaluran">0</td>
+        <td id="sumPPh">0</td>
+        <td id="sumJknPns">0</td>
+        <td id="sumJknP3k">0</td>
+        <td>-</td>
+      </tr>
+    </tfoot>
   </table>
 </div>
 
 <script>
-/* =========================== */
-/*      INISIASI FILTER        */
-/* =========================== */
-
 const bulanList = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
 function initFilter(){
@@ -146,19 +150,9 @@ function initFilter(){
 }
 initFilter();
 
-/* Langsung tampilkan data saat halaman dibuka */
 window.onload = () => loadData();
 
-/* =========================== */
-/*   API GOOGLE APPS SCRIPT    */
-/* =========================== */
-
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
-
-/* =========================== */
-/*        LOAD DATA            */
-/* =========================== */
+const API_URL = "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
 
 async function loadData(){
   const bAw = parseInt(bulanAwal.value);
@@ -173,7 +167,6 @@ async function loadData(){
     const res = await fetch(API_URL);
     const data = await res.json();
 
-    /* FILTER DATA BERDASARKAN RENTANG */
     const hasil = data.filter(row => {
       const tgl = row["Tanggal SP2D"];
       if (!tgl) return false;
@@ -194,20 +187,39 @@ async function loadData(){
       return;
     }
 
-    /* TAMPILKAN DATA */
+    let totalPenyaluran = 0;
+    let totalPPh = 0;
+    let totalJknPns = 0;
+    let totalJknP3k = 0;
+
     hasil.forEach(row=>{
+      const nilai = Number(row["Nilai SP2D"]) || 0;
+      const pph = Number(row["PPh"]) || 0;
+      const jpns = Number(row["Jkn Pns"]) || 0;
+      const jp3k = Number(row["Jkn P3k"]) || 0;
+
+      totalPenyaluran += nilai;
+      totalPPh += pph;
+      totalJknPns += jpns;
+      totalJknP3k += jp3k;
+
       tbody.innerHTML += `
         <tr>
           <td>${row["Jenis"]}</td>
           <td>${row["Tanggal SP2D"]}</td>
-          <td>${Number(row["Nilai SP2D"]).toLocaleString("id-ID")}</td>
-          <td>${Number(row["PPh"]).toLocaleString("id-ID")}</td>
-          <td>${Number(row["Jkn Pns"]).toLocaleString("id-ID")}</td>
-          <td>${Number(row["Jkn P3k"]).toLocaleString("id-ID")}</td>
+          <td>${nilai.toLocaleString("id-ID")}</td>
+          <td>${pph.toLocaleString("id-ID")}</td>
+          <td>${jpns.toLocaleString("id-ID")}</td>
+          <td>${jp3k.toLocaleString("id-ID")}</td>
           <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
         </tr>
       `;
     });
+
+    document.getElementById("sumTotalPenyaluran").textContent = totalPenyaluran.toLocaleString("id-ID");
+    document.getElementById("sumPPh").textContent = totalPPh.toLocaleString("id-ID");
+    document.getElementById("sumJknPns").textContent = totalJknPns.toLocaleString("id-ID");
+    document.getElementById("sumJknP3k").textContent = totalJknP3k.toLocaleString("id-ID");
 
   } catch (err){
     console.error(err);
