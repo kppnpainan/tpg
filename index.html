@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Data Penyaluran TPG</title>
+<style>
+    body{font-family:Arial;background:#f3f6f9;text-align:center;padding:20px;}
+    .box{
+        width:450px;margin:12px auto;padding:18px;border-radius:8px;
+        color:white;font-size:20px;font-weight:bold;
+    }
+    .blue{background:#2F6CC6;}
+    .orange{background:#f39c12;}
+    .green{background:#27ae60;}
+    .yellow{background:#f1c40f;color:#333;font-weight:700;}
+    .footer{
+        margin-top:20px;font-size:18px;padding:10px;
+        display:inline-block;border:2px solid #1d3557;border-radius:8px;
+    }
+    a.detil{
+        display:inline-block;background:#34495e;color:white;
+        padding:12px 20px;margin-top:20px;border-radius:6px;
+        font-size:18px;text-decoration:none;
+    }
+</style>
+</head>
+<body>
+
+<h2>Data Penyaluran Tunjangan Profesi Guru KPPN Painan</h2>
+<h3>Periode Januari s.d. November 2025</h3>
+
+<div class="box blue">Total TPG Disalurkan<br>Rp <span id="total_tpg">...</span></div>
+<div class="box orange">Potongan JKN PNS<br>Rp <span id="jkn_pns">...</span></div>
+<div class="box green">Potongan JKN P3K<br>Rp <span id="jkn_p3k">...</span></div>
+<div class="box yellow">Potongan PPh<br>Rp <span id="pph">...</span></div>
+
+<br>
+
+<a class="detil" id="detailLink" href="#" target="_blank">Detil</a>
+
+<script>
+// GANTI dengan URL Web App Apps Script
+const API_URL = "https://script.google.com/macros/s/AKfycbxreZxVCaYLijcep6uVLveLAbX5tOK-yMAyLSPzd3OaPHSpP3SHe8jUp9bmqYIPf2Iq/exec";
+
+async function loadData(){
+    const response = await fetch(API_URL);
+    const data = await response.json();
+
+    const formatRupiah = n => n.toLocaleString("id-ID");
+
+    document.getElementById("total_tpg").innerText = formatRupiah(data.totalTPG);
+    document.getElementById("jkn_pns").innerText = formatRupiah(data.totalJknPns);
+    document.getElementById("jkn_p3k").innerText = formatRupiah(data.totalJknP3k);
+    document.getElementById("pph").innerText = formatRupiah(data.totalPPh);
+
+    document.getElementById("detailLink").href = data.linkDrive;
+}
+
+loadData();
+</script>
+
+</body>
+</html>
