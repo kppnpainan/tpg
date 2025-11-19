@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard TPG – KPPN Painan</title>
+<title>TPG – KPPN Painan</title>
 <style>
     body{
         font-family: 'Arial', sans-serif;
@@ -115,8 +115,8 @@
 <body>
 
 <div class="header">
-    <h2>Dashboard TPG</h2>
-    <h4>KPPN Painan • Januari–November 2025</h4>
+    <h2>Penyaluran TPG - KPPN Painan</h2>
+    <h4 id="periode"></h4>
 </div>
 
 <div class="container">
@@ -154,6 +154,28 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxreZxVCaYLijcep6uVLveLAbX5tOK-yMAyLSPzd3OaPHSpP3SHe8jUp9bmqYIPf2Iq/exec";
 
+/* ===============================
+   PERIODE OTOMATIS
+================================ */
+function setPeriode() {
+    const bulanNama = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+
+    const now = new Date();
+    const bulan = bulanNama[now.getMonth()];
+    const tahun = now.getFullYear();
+
+    document.getElementById("periode").innerText =
+        `Periode Januari s.d. ${bulan} ${tahun}`;
+}
+
+setPeriode();
+
+/* ===============================
+   LOAD DATA DARI GOOGLE APPS SCRIPT
+================================ */
 async function loadData(){
     try{
         const response = await fetch(API_URL);
@@ -163,7 +185,7 @@ async function loadData(){
 
         document.getElementById("total_tpg").innerText = "Rp " + rp(data.totalTPG);
         document.getElementById("jkn_pns").innerText = "Rp " + rp(data.totalJknPns);
-        document.getElementById("jkn_p3k").innerText = "Rp " + rp(data.totalJknP3k); // FIX DI SINI
+        document.getElementById("jkn_p3k").innerText = "Rp " + rp(data.totalJknP3k);
         document.getElementById("pph").innerText = "Rp " + rp(data.totalPPh);
 
         document.getElementById("detailLink").href = data.linkDrive;
