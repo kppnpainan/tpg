@@ -2,7 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TPG – KPPN Painan</title>
+
 <style>
     body{
         font-family: 'Arial', sans-serif;
@@ -28,7 +30,7 @@
         font-weight:bold;
     }
 
-    .header h4{
+    .header h3{
         margin-top:6px;
         font-size:15px;
         opacity:0.9;
@@ -36,24 +38,33 @@
 
     .container{
         padding:20px;
-        max-width:620px;
+        max-width:800px;   /* lebih lebar agar tidak mepet */
         margin:auto;
     }
 
+    /* ===============================
+       GRID FIX: 2 kolom desktop, 
+       otom. 1 kolom di HP
+    ================================ */
     .grid{
         display:grid;
-        grid-template-columns:1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);  /* tetap 2 kolom di desktop */
         gap:16px;
+    }
+
+    @media (max-width: 600px){
+        .grid{
+            grid-template-columns: 1fr; /* HP → 1 kolom */
+        }
     }
 
     .card{
         background:white;
-        padding:18px;
+        padding:20px;
         border-radius:14px;
         box-shadow:0 3px 12px rgba(0,0,0,0.08);
         transition:.2s;
         text-align:left;
-        position:relative;
     }
 
     .card:hover{
@@ -62,21 +73,21 @@
     }
 
     .iconBox{
-        width:42px;
-        height:42px;
+        width:46px;
+        height:46px;
         border-radius:10px;
         display:flex;
         align-items:center;
         justify-content:center;
-        font-size:22px;
+        font-size:24px;
         color:white;
         margin-bottom:10px;
     }
 
-    .blue{background:#2a6fdb;}
-    .orange{background:#f39c12;}
-    .green{background:#27ae60;}
-    .yellow{background:#f1c40f;color:#333 !important;}
+    .blue{ background:#2a6fdb; }
+    .orange{ background:#f39c12; }
+    .green{ background:#27ae60; }
+    .yellow{ background:#f1c40f; color:#333 !important; }
 
     .label{
         font-size:15px;
@@ -89,18 +100,19 @@
         font-size:22px;
         font-weight:bold;
         color:#1d3557;
+        line-height:1.4;
     }
 
     .detail-btn{
         display:block;
-        width:160px;
+        width:200px;
         text-align:center;
         background:#1d3557;
         color:white;
         padding:14px;
         border-radius:10px;
         font-weight:bold;
-        margin:30px auto 10px;
+        margin:35px auto 10px;
         text-decoration:none;
         box-shadow:0 4px 14px rgba(0,0,0,0.2);
         transition:.2s;
@@ -112,6 +124,7 @@
     }
 </style>
 </head>
+
 <body>
 
 <div class="header">
@@ -122,6 +135,7 @@
 <div class="container">
 
     <div class="grid">
+
         <div class="card">
             <div class="iconBox blue">💰</div>
             <div class="label">Total TPG Disalurkan</div>
@@ -154,13 +168,13 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxreZxVCaYLijcep6uVLveLAbX5tOK-yMAyLSPzd3OaPHSpP3SHe8jUp9bmqYIPf2Iq/exec";
 
-/* ===============================
-   PERIODE OTOMATIS
-================================ */
+/* =====================================
+   SET PERIODE OTOMATIS
+===================================== */
 function setPeriode() {
     const bulanNama = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        "Januari","Februari","Maret","April","Mei","Juni",
+        "Juli","Agustus","September","Oktober","November","Desember"
     ];
 
     const now = new Date();
@@ -173,9 +187,9 @@ function setPeriode() {
 
 setPeriode();
 
-/* ===============================
-   LOAD DATA DARI GOOGLE APPS SCRIPT
-================================ */
+/* =====================================
+   LOAD DATA API
+===================================== */
 async function loadData(){
     try{
         const response = await fetch(API_URL);
@@ -187,8 +201,6 @@ async function loadData(){
         document.getElementById("jkn_pns").innerText = "Rp " + rp(data.totalJknPns);
         document.getElementById("jkn_p3k").innerText = "Rp " + rp(data.totalJknP3k);
         document.getElementById("pph").innerText = "Rp " + rp(data.totalPPh);
-
-        document.getElementById("detailLink").href = rincian.html;
 
     }catch(e){
         console.error("Gagal mengambil data:", e);
