@@ -2,117 +2,174 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Data Penyaluran TPG</title>
+<title>Dashboard TPG – KPPN Painan</title>
 <style>
     body{
-        font-family: Arial, sans-serif;
-        background:#eef2f6;
-        text-align:center;
-        padding:20px;
+        font-family: 'Arial', sans-serif;
+        background:#f5f7fb;
         margin:0;
+        padding:0;
+        color:#333;
     }
 
-    h2{
-        margin-bottom:5px;
-        color:#1d3557;
+    .header{
+        background:#1d3557;
+        padding:22px;
+        text-align:center;
+        color:white;
+        border-bottom-left-radius:20px;
+        border-bottom-right-radius:20px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
 
-    h3{
-        margin-top:0;
-        color:#457b9d;
-        font-weight:500;
+    .header h2{
+        margin:0;
+        font-size:22px;
+        font-weight:bold;
+    }
+
+    .header h4{
+        margin-top:6px;
+        font-size:15px;
+        opacity:0.9;
     }
 
     .container{
-        max-width:500px;
-        margin:0 auto;
+        padding:20px;
+        max-width:620px;
+        margin:auto;
     }
 
-    .box{
-        width:100%;
+    .grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+    }
+
+    .card{
+        background:white;
         padding:18px;
-        border-radius:12px;
-        margin:12px 0;
-        color:white;
-        font-size:20px;
-        font-weight:bold;
-        box-shadow:0 3px 10px rgba(0,0,0,0.12);
+        border-radius:14px;
+        box-shadow:0 3px 12px rgba(0,0,0,0.08);
         transition:.2s;
+        text-align:left;
+        position:relative;
     }
 
-    .box:hover{
-        transform:scale(1.02);
+    .card:hover{
+        transform:scale(1.03);
+        box-shadow:0 4px 16px rgba(0,0,0,0.15);
     }
 
-    .blue{background:#2F6CC6;}
+    .iconBox{
+        width:42px;
+        height:42px;
+        border-radius:10px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:22px;
+        color:white;
+        margin-bottom:10px;
+    }
+
+    .blue{background:#2a6fdb;}
     .orange{background:#f39c12;}
     .green{background:#27ae60;}
-    .yellow{
-        background:#f1c40f;
-        color:#333;
-        font-weight:700;
+    .yellow{background:#f1c40f;color:#333 !important;}
+
+    .label{
+        font-size:15px;
+        opacity:0.8;
+        margin-bottom:6px;
+        font-weight:500;
     }
 
-    /* Tombol Detil */
-    a.detil{
-        display:inline-block;
+    .value{
+        font-size:22px;
+        font-weight:bold;
+        color:#1d3557;
+    }
+
+    /* Tombol detail seperti floating button */
+    .detail-btn{
+        display:block;
+        width:160px;
+        text-align:center;
         background:#1d3557;
         color:white;
-        padding:14px 26px;
-        margin-top:25px;
-        border-radius:8px;
-        font-size:18px;
+        padding:14px;
+        border-radius:30px;
         font-weight:bold;
+        margin:30px auto 10px;
         text-decoration:none;
-        box-shadow:0 3px 10px rgba(0,0,0,0.2);
+        box-shadow:0 4px 14px rgba(0,0,0,0.2);
         transition:.2s;
     }
-
-    a.detil:hover{
+    .detail-btn:hover{
+        transform:scale(1.08);
         background:#16324f;
-        transform:scale(1.05);
-    }
-
-    /* Responsif untuk HP */
-    @media(max-width:480px){
-        .box{font-size:18px;}
-        a.detil{font-size:16px;padding:12px 22px;}
     }
 </style>
 </head>
 <body>
 
-<h2>Data Penyaluran Tunjangan Profesi Guru</h2>
-<h3>KPPN Painan • Jan–Nov 2025</h3>
-
-<div class="container">
-    <div class="box blue">Total TPG Disalurkan<br>Rp <span id="total_tpg">...</span></div>
-    <div class="box orange">Potongan JKN PNS<br>Rp <span id="jkn_pns">...</span></div>
-    <div class="box green">Potongan JKN P3K<br>Rp <span id="jkn_p3k">...</span></div>
-    <div class="box yellow">Potongan PPh<br>Rp <span id="pph">...</span></div>
+<div class="header">
+    <h2>Dashboard TPG</h2>
+    <h4>KPPN Painan • Januari–November 2025</h4>
 </div>
 
-<a class="detil" id="detailLink" href="#" target="_blank">Lihat Detil</a>
+<div class="container">
+
+    <div class="grid">
+        <div class="card">
+            <div class="iconBox blue">💰</div>
+            <div class="label">Total TPG Disalurkan</div>
+            <div class="value" id="total_tpg">...</div>
+        </div>
+
+        <div class="card">
+            <div class="iconBox orange">🏥</div>
+            <div class="label">Potongan JKN PNS</div>
+            <div class="value" id="jkn_pns">...</div>
+        </div>
+
+        <div class="card">
+            <div class="iconBox green">🏥</div>
+            <div class="label">Potongan JKN P3K</div>
+            <div class="value" id="jkn_p3k">...</div>
+        </div>
+
+        <div class="card">
+            <div class="iconBox yellow">💸</div>
+            <div class="label">Potongan PPh</div>
+            <div class="value" id="pph">...</div>
+        </div>
+    </div>
+
+    <a id="detailLink" class="detail-btn" href="#" target="_blank">Lihat Detil</a>
+
+</div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxreZxVCaYLijcep6uVLveLAbX5tOK-yMAyLSPzd3OaPHSpP3SHe8jUp9bmqYIPf2Iq/exec";
 
 async function loadData(){
-    try {
+    try{
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        const formatRupiah = n => n.toLocaleString("id-ID");
+        const rp = n => n.toLocaleString("id-ID");
 
-        document.getElementById("total_tpg").innerText = formatRupiah(data.totalTPG);
-        document.getElementById("jkn_pns").innerText = formatRupiah(data.totalJknPns);
-        document.getElementById("jkn_p3k").innerText = formatRupiah(data.totalJknP3K);
-        document.getElementById("pph").innerText = formatRupiah(data.totalPPh);
+        document.getElementById("total_tpg").innerText = "Rp " + rp(data.totalTPG);
+        document.getElementById("jkn_pns").innerText = "Rp " + rp(data.totalJknPns);
+        document.getElementById("jkn_p3k").innerText = "Rp " + rp(data.totalJknP3K);
+        document.getElementById("pph").innerText = "Rp " + rp(data.totalPPh);
 
         document.getElementById("detailLink").href = data.linkDrive;
 
-    } catch (e){
-        console.error("Gagal memuat data:", e);
+    }catch(e){
+        console.log("Gagal mengambil data:", e);
     }
 }
 
