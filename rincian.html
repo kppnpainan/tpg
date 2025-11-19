@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Rincian Penyaluran TPG – KPPN Painan</title>
+
+<style>
+    body {
+        font-family: Calibri, Arial, sans-serif;
+        background: #f2f4f8;
+        margin: 0;
+        padding: 40px 20px;
+        color: #333;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 25px;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    /* Filter Container */
+    .filter-box {
+        max-width: 1100px;
+        margin: auto;
+        background: white;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    select, button {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    button {
+        background: #1d3557;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    button:hover {
+        background: #16324f;
+        transform: scale(1.03);
+    }
+
+    /* Table */
+    .table-wrapper {
+        max-width: 1100px;
+        margin: 30px auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    th {
+        background: #e8eef7;
+        padding: 12px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 14px;
+        border-bottom: 1px solid #d6d6d6;
+    }
+
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    tr:nth-child(even) {
+        background: #fafafa;
+    }
+</style>
+
+</head>
+<body>
+
+<h2>Rincian Penyaluran TPG KPPN Painan</h2>
+
+<div class="filter-box">
+
+    <span>Tampilkan untuk bulan</span>
+
+    <select id="bulanAwal"></select>
+    <select id="tahunAwal"></select>
+
+    <span>s.d. bulan</span>
+
+    <select id="bulanAkhir"></select>
+    <select id="tahunAkhir"></select>
+
+    <button onclick="loadData()">Tampilkan</button>
+</div>
+
+<div class="table-wrapper">
+    <table id="tabelData">
+        <thead>
+            <tr>
+                <th>Jenis</th>
+                <th>Tanggal SP2D</th>
+                <th>Total Penyaluran</th>
+                <th>PPh</th>
+                <th>JKN PNS</th>
+                <th>JKN P3K</th>
+                <th>Detil Penerima</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="7">Memuat data...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+// =======================
+// Dropdown Initialization
+// =======================
+const bulanList = [
+    "Januari","Februari","Maret","April","Mei","Juni",
+    "Juli","Agustus","September","Oktober","November","Desember"
+];
+
+function initFilter() {
+    bulanList.forEach((b,i)=>{
+        bulanAwal.innerHTML += `<option value="${i+1}">${b}</option>`;
+        bulanAkhir.innerHTML += `<option value="${i+1}">${b}</option>`;
+    });
+
+    const tahunList = [2025, 2026, 2027];
+    tahunList.forEach(t=>{
+        tahunAwal.innerHTML += `<option value="${t}">${t}</option>`;
+        tahunAkhir.innerHTML += `<option value="${t}">${t}</option>`;
+    });
+
+    bulanAwal.value = 1;
+    bulanAkhir.value = 12;
+    tahunAwal.value = 2025;
+    tahunAkhir.value = 2025;
+}
+
+initFilter();
+
+// =======================
+// Load Data from Apps Script
+// =======================
+const API_URL = "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
+
+async function loadData() {
+
+    const params = new URLSearchParams({
+        bulanAwal: bulanAwal.value,
+        bulanAkhir: bulanAkhir.value,
+        tahunAwal: tahunAwal.value,
+        tahunAkhir: tahunAkhir.value
+    });
+
+    document.querySelector("#tabelData tbody").innerHTML =
+        `<tr><td colspan="7">Mengambil data...</td></tr>`;
+
+    try {
+        const res = await fetch(API_URL + "?" + params.toString());
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            document.querySelector("#tabelData tbody").innerHTML =
+                `<tr><td colspan="7">Tidak ada data untuk rentang tersebut.</td></tr>`;
+            return;
+        }
+
+        let rows = "";
+        data.forEach(d=>{
+            rows += `
+                <tr>
+                    <td>${d.jenis}</td>
+                    <td>${d.tanggal}</td>
+                    <td>${d.nilai.toLocaleString("id-ID")}</td>
+                    <td>${d.pph.toLocaleString("id-ID")}</td>
+                    <td>${d.jknPns.toLocaleString("id-ID")}</td>
+                    <td>${d.jknP3k.toLocaleString("id-ID")}</td>
+                    <td><a href="${d.link}" target="_blank">Cek (link)</a></td>
+                </tr>
+            `;
+        });
+
+        document.querySelector("#tabelData tbody").innerHTML = rows;
+
+    } catch (err) {
+        document.querySelector("#tabelData tbody").innerHTML =
+            `<tr><td colspan="7">Terjadi kesalahan mengambil data.</td></tr>`;
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>
