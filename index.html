@@ -17,8 +17,8 @@
         padding:22px;
         text-align:center;
         color:white;
-        border-bottom-left-radius:20px;
-        border-bottom-right-radius:20px;
+        border-bottom-left-radius:5px;
+        border-bottom-right-radius:5px;
         box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
 
@@ -98,7 +98,7 @@
         background:#1d3557;
         color:white;
         padding:14px;
-        border-radius:30px;
+        border-radius:10px;
         font-weight:bold;
         margin:30px auto 10px;
         text-decoration:none;
@@ -116,7 +116,7 @@
 
 <div class="header">
     <h2>Penyaluran TPG - KPPN Painan</h2>
-    <h4 id="periode"></h4>
+    <h3 id="periode"></h3>
 </div>
 
 <div class="container">
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <a id="detailLink" class="detail-btn" href="#" target="_blank">Lihat Detil</a>
+    <a id="detailLink" class="detail-btn" href="rincian.html" target="_blank">Lihat Detil</a>
 
 </div>
 
@@ -188,7 +188,7 @@ async function loadData(){
         document.getElementById("jkn_p3k").innerText = "Rp " + rp(data.totalJknP3k);
         document.getElementById("pph").innerText = "Rp " + rp(data.totalPPh);
 
-        document.getElementById("detailLink").href = data.linkDrive;
+        document.getElementById("detailLink").href = rincian.html;
 
     }catch(e){
         console.error("Gagal mengambil data:", e);

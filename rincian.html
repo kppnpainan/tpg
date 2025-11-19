@@ -1,214 +1,219 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Rincian Penyaluran TPG – KPPN Painan</title>
 
 <style>
-    body {
-        font-family: Calibri, Arial, sans-serif;
-        background: #f2f4f8;
-        margin: 0;
-        padding: 40px 20px;
-        color: #333;
-    }
+  body {
+    font-family: Calibri, Arial;
+    background:#f2f4f8;
+    margin:0;
+    padding:40px 20px;
+    color:#333;
+  }
+  h2 {
+    text-align:center;
+    font-size:24px;
+    margin-bottom:25px;
+    text-decoration:underline;
+  }
 
-    h2 {
-        text-align: center;
-        font-size: 24px;
-        margin-bottom: 25px;
-        font-weight: bold;
-        text-decoration: underline;
-    }
+  /* FILTER BOX */
+  .filter-box {
+    max-width:850px;
+    margin:auto;
+    background:white;
+    padding:18px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    justify-content:center;
+  }
+  select, button {
+    padding:10px 12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:14px;
+  }
+  button {
+    background:#1d3557;
+    color:white;
+    border:none;
+    cursor:pointer;
+    transition:.2s;
+  }
+  button:hover {
+    background:#16324f;
+    transform:scale(1.03);
+  }
 
-    /* Filter Container */
-    .filter-box {
-        max-width: 1100px;
-        margin: auto;
-        background: white;
-        padding: 18px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    select, button {
-        padding: 10px 12px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    button {
-        background: #1d3557;
-        color: white;
-        border: none;
-        cursor: pointer;
-        transition: .2s;
-    }
-
-    button:hover {
-        background: #16324f;
-        transform: scale(1.03);
-    }
-
-    /* Table */
-    .table-wrapper {
-        max-width: 1100px;
-        margin: 30px auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    th {
-        background: #e8eef7;
-        padding: 12px;
-        font-weight: bold;
-        text-align: center;
-        font-size: 14px;
-        border-bottom: 1px solid #d6d6d6;
-    }
-
-    td {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-        font-size: 14px;
-        text-align: center;
-    }
-
-    tr:nth-child(even) {
-        background: #fafafa;
-    }
+  /* TABLE */
+  .table-wrapper {
+    max-width:1100px;
+    margin:30px auto;
+  }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  }
+  th {
+    background:#e8eef7;
+    padding:12px;
+    font-weight:bold;
+    text-align:center;
+    font-size:14px;
+    border-bottom:1px solid #d6d6d6;
+  }
+  td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+    text-align:center;
+  }
+  tr:nth-child(even) {
+    background:#fafafa;
+  }
 </style>
-
 </head>
+
 <body>
 
 <h2>Rincian Penyaluran TPG KPPN Painan</h2>
 
+<!-- FILTER BOX -->
 <div class="filter-box">
+  <span>Tampilkan untuk bulan</span>
+  <select id="bulanAwal"></select>
+  <select id="tahunAwal"></select>
 
-    <span>Tampilkan untuk bulan</span>
+  <span>s.d. bulan</span>
+  <select id="bulanAkhir"></select>
+  <select id="tahunAkhir"></select>
 
-    <select id="bulanAwal"></select>
-    <select id="tahunAwal"></select>
-
-    <span>s.d. bulan</span>
-
-    <select id="bulanAkhir"></select>
-    <select id="tahunAkhir"></select>
-
-    <button onclick="loadData()">Tampilkan</button>
+  <button onclick="loadData()">Tampilkan</button>
 </div>
 
+<!-- TABLE -->
 <div class="table-wrapper">
-    <table id="tabelData">
-        <thead>
-            <tr>
-                <th>Jenis</th>
-                <th>Tanggal SP2D</th>
-                <th>Total Penyaluran</th>
-                <th>PPh</th>
-                <th>JKN PNS</th>
-                <th>JKN P3K</th>
-                <th>Detil Penerima</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td colspan="7">Memuat data...</td></tr>
-        </tbody>
-    </table>
+  <table id="tabelData">
+    <thead>
+      <tr>
+        <th>Jenis</th>
+        <th>Tanggal SP2D</th>
+        <th>Total Penyaluran</th>
+        <th>PPh</th>
+        <th>JKN PNS</th>
+        <th>JKN P3K</th>
+        <th>Detil Penerima</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="7">Memuat data...</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <script>
-// =======================
-// Dropdown Initialization
-// =======================
-const bulanList = [
-    "Januari","Februari","Maret","April","Mei","Juni",
-    "Juli","Agustus","September","Oktober","November","Desember"
-];
+/* =========================== */
+/*      INISIASI FILTER        */
+/* =========================== */
 
-function initFilter() {
-    bulanList.forEach((b,i)=>{
-        bulanAwal.innerHTML += `<option value="${i+1}">${b}</option>`;
-        bulanAkhir.innerHTML += `<option value="${i+1}">${b}</option>`;
-    });
+const bulanList = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-    const tahunList = [2025, 2026, 2027];
-    tahunList.forEach(t=>{
-        tahunAwal.innerHTML += `<option value="${t}">${t}</option>`;
-        tahunAkhir.innerHTML += `<option value="${t}">${t}</option>`;
-    });
+function initFilter(){
+  bulanList.forEach((b,i)=>{
+    bulanAwal.innerHTML += `<option value="${i+1}">${b}</option>`;
+    bulanAkhir.innerHTML += `<option value="${i+1}">${b}</option>`;
+  });
+  [2025,2026,2027].forEach(t=>{
+    tahunAwal.innerHTML += `<option value="${t}">${t}</option>`;
+    tahunAkhir.innerHTML += `<option value="${t}">${t}</option>`;
+  });
 
-    bulanAwal.value = 1;
-    bulanAkhir.value = 12;
-    tahunAwal.value = 2025;
-    tahunAkhir.value = 2025;
+  bulanAwal.value = 1;
+  bulanAkhir.value = 12;
+  tahunAwal.value = 2025;
+  tahunAkhir.value = 2025;
 }
-
 initFilter();
 
-// =======================
-// Load Data from Apps Script
-// =======================
-const API_URL = "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
+/* Langsung tampilkan data saat halaman dibuka */
+window.onload = () => loadData();
 
-async function loadData() {
+/* =========================== */
+/*   API GOOGLE APPS SCRIPT    */
+/* =========================== */
 
-    const params = new URLSearchParams({
-        bulanAwal: bulanAwal.value,
-        bulanAkhir: bulanAkhir.value,
-        tahunAwal: tahunAwal.value,
-        tahunAkhir: tahunAkhir.value
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
+
+/* =========================== */
+/*        LOAD DATA            */
+/* =========================== */
+
+async function loadData(){
+  const bAw = parseInt(bulanAwal.value);
+  const tAw = parseInt(tahunAwal.value);
+  const bAk = parseInt(bulanAkhir.value);
+  const tAk = parseInt(tahunAkhir.value);
+
+  document.querySelector("#tabelData tbody").innerHTML =
+    `<tr><td colspan="7">Mengambil data...</td></tr>`;
+
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    /* FILTER DATA BERDASARKAN RENTANG */
+    const hasil = data.filter(row => {
+      const tgl = row["Tanggal SP2D"];
+      if (!tgl) return false;
+
+      const [dd, mm, yy] = tgl.split("/").map(Number);
+      const current = yy * 100 + mm;
+      const start = tAw * 100 + bAw;
+      const end   = tAk * 100 + bAk;
+
+      return current >= start && current <= end;
     });
 
-    document.querySelector("#tabelData tbody").innerHTML =
-        `<tr><td colspan="7">Mengambil data...</td></tr>`;
+    const tbody = document.querySelector("#tabelData tbody");
+    tbody.innerHTML = "";
 
-    try {
-        const res = await fetch(API_URL + "?" + params.toString());
-        const data = await res.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-            document.querySelector("#tabelData tbody").innerHTML =
-                `<tr><td colspan="7">Tidak ada data untuk rentang tersebut.</td></tr>`;
-            return;
-        }
-
-        let rows = "";
-        data.forEach(d=>{
-            rows += `
-                <tr>
-                    <td>${d.jenis}</td>
-                    <td>${d.tanggal}</td>
-                    <td>${d.nilai.toLocaleString("id-ID")}</td>
-                    <td>${d.pph.toLocaleString("id-ID")}</td>
-                    <td>${d.jknPns.toLocaleString("id-ID")}</td>
-                    <td>${d.jknP3k.toLocaleString("id-ID")}</td>
-                    <td><a href="${d.link}" target="_blank">Cek (link)</a></td>
-                </tr>
-            `;
-        });
-
-        document.querySelector("#tabelData tbody").innerHTML = rows;
-
-    } catch (err) {
-        document.querySelector("#tabelData tbody").innerHTML =
-            `<tr><td colspan="7">Terjadi kesalahan mengambil data.</td></tr>`;
-        console.error(err);
+    if (hasil.length === 0){
+      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data dalam rentang tersebut.</td></tr>`;
+      return;
     }
+
+    /* TAMPILKAN DATA */
+    hasil.forEach(row=>{
+      tbody.innerHTML += `
+        <tr>
+          <td>${row["Jenis"]}</td>
+          <td>${row["Tanggal SP2D"]}</td>
+          <td>${Number(row["Nilai SP2D"]).toLocaleString("id-ID")}</td>
+          <td>${Number(row["PPh"]).toLocaleString("id-ID")}</td>
+          <td>${Number(row["Jkn Pns"]).toLocaleString("id-ID")}</td>
+          <td>${Number(row["Jkn P3k"]).toLocaleString("id-ID")}</td>
+          <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
+        </tr>
+      `;
+    });
+
+  } catch (err){
+    console.error(err);
+    document.querySelector("#tabelData tbody").innerHTML =
+      `<tr><td colspan="7" style="color:red;">Terjadi kesalahan memuat data.</td></tr>`;
+  }
 }
 </script>
 
