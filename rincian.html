@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
@@ -133,6 +133,55 @@
 <script>
 const bulanList = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
+// =========================
+//  PARSER TANGGAL PERBAIKAN
+// =========================
+function parseTanggal(tgl) {
+  if (!tgl) return null;
+  tgl = tgl.trim();
+
+  // Format dd/mm/yyyy
+  if (tgl.includes("/")) {
+    const [d, m, y] = tgl.split("/").map(Number);
+    return { d, m, y };
+  }
+
+  // Format yyyy-mm-dd
+  if (tgl.includes("-")) {
+    const [y, m, d] = tgl.split("-").map(Number);
+    return { d, m, y };
+  }
+
+  // Format "25 Maret 2025" atau "03 January 2025"
+  const bulanIndo = {
+    Januari:1, Februari:2, Maret:3, April:4, Mei:5, Juni:6,
+    Juli:7, Agustus:8, September:9, Oktober:10, November:11, Desember:12
+  };
+
+  const bulanEng = {
+    January:1, February:2, March:3, April:4, May:5, June:6,
+    July:7, August:8, September:9, October:10, November:11, December:12
+  };
+
+  const parts = tgl.split(" ");
+
+  if (parts.length === 3) {
+    const d = Number(parts[0]);
+    const namaBulan = parts[1];
+    const y = Number(parts[2]);
+
+    const m = bulanIndo[namaBulan] || bulanEng[namaBulan];
+    if (!m) return null;
+
+    return { d, m, y };
+  }
+
+  return null;
+}
+
+// =====================================
+//  INISIALISASI FILTER BULAN & TAHUN
+// =====================================
 function initFilter(){
   bulanList.forEach((b,i)=>{
     bulanAwal.innerHTML += `<option value="${i+1}">${b}</option>`;
@@ -154,6 +203,9 @@ window.onload = () => loadData();
 
 const API_URL = "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
 
+// =============================
+//      LOAD DATA DARI API
+// =============================
 async function loadData(){
   const bAw = parseInt(bulanAwal.value);
   const tAw = parseInt(tahunAwal.value);
@@ -169,10 +221,10 @@ async function loadData(){
 
     const hasil = data.filter(row => {
       const tgl = row["Tanggal SP2D"];
-      if (!tgl) return false;
+      const t = parseTanggal(tgl);
+      if (!t) return false;
 
-      const [dd, mm, yy] = tgl.split("/").map(Number);
-      const current = yy * 100 + mm;
+      const current = t.y * 100 + t.m;
       const start = tAw * 100 + bAw;
       const end   = tAk * 100 + bAk;
 
