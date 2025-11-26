@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8" />
@@ -87,16 +87,31 @@
 
 <body>
 
-<h2>Rincian Penyaluran TPG KPPN Painan</h2>
+<h2>Rincian Penyaluran KPPN Painan</h2>
 
 <div class="filter-box">
-  <span>Periode</span>
-  <select id="bulanAwal"></select>
-  <select id="tahunAwal"></select>
+  <span>Jenis</span>
+  <select id="jenisFilter">
+    <option value="ALL">Semua</option>
+    <option value="TPG">TPG</option>
+    <option value="JKN">JKN</option>
+    <option value="TKD">TKD</option>
+  </select>
 
-  <span>-</span>
-  <select id="bulanAkhir"></select>
-  <select id="tahunAkhir"></select>
+  <span>Triwulan</span>
+  <select id="triwulanFilter">
+    <option value="1">Triwulan I</option>
+    <option value="2">Triwulan II</option>
+    <option value="3">Triwulan III</option>
+    <option value="4">Triwulan IV</option>
+  </select>
+
+  <span>Tahun</span>
+  <select id="tahunFilter">
+    <option value="2025">2025</option>
+    <option value="2026">2026</option>
+    <option value="2027">2027</option>
+  </select>
 
   <button onclick="loadData()">Tampilkan</button>
 </div>
@@ -106,11 +121,11 @@
     <thead>
       <tr>
         <th>Jenis</th>
+        <th>Nomor SP2D</th>
         <th>Tanggal SP2D</th>
-        <th>Total Penyaluran</th>
+        <th>Bruto</th>
         <th>PPh</th>
-        <th>JKN PNS</th>
-        <th>JKN P3K</th>
+        <th>JKN</th>
         <th>Detil Penerima</th>
       </tr>
     </thead>
@@ -119,11 +134,10 @@
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="2">TOTAL</td>
-        <td id="sumTotalPenyaluran">0</td>
+        <td colspan="3">TOTAL</td>
+        <td id="sumBruto">0</td>
         <td id="sumPPh">0</td>
-        <td id="sumJknPns">0</td>
-        <td id="sumJknP3k">0</td>
+        <td id="sumJkn">0</td>
         <td>-</td>
       </tr>
     </tfoot>
@@ -131,86 +145,41 @@
 </div>
 
 <script>
-const bulanList = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const API_URL = "https://script.google.com/macros/s/AKfycbwaPct1SUJSATP7LIjhGZ0tUpYp0tk97funJOGy161LEGGNTizqGQh_Wd4_aQrANPudmA/exec";
 
-// =========================
-//  PARSER TANGGAL PERBAIKAN
-// =========================
+// parser tanggal "25 Maret 2025"
 function parseTanggal(tgl) {
   if (!tgl) return null;
-  tgl = tgl.trim();
-
-  // Format dd/mm/yyyy
-  if (tgl.includes("/")) {
-    const [d, m, y] = tgl.split("/").map(Number);
-    return { d, m, y };
-  }
-
-  // Format yyyy-mm-dd
-  if (tgl.includes("-")) {
-    const [y, m, d] = tgl.split("-").map(Number);
-    return { d, m, y };
-  }
-
-  // Format "25 Maret 2025" atau "03 January 2025"
   const bulanIndo = {
     Januari:1, Februari:2, Maret:3, April:4, Mei:5, Juni:6,
     Juli:7, Agustus:8, September:9, Oktober:10, November:11, Desember:12
   };
-
-  const bulanEng = {
-    January:1, February:2, March:3, April:4, May:5, June:6,
-    July:7, August:8, September:9, October:10, November:11, December:12
-  };
-
   const parts = tgl.split(" ");
-
   if (parts.length === 3) {
     const d = Number(parts[0]);
-    const namaBulan = parts[1];
+    const m = bulanIndo[parts[1]];
     const y = Number(parts[2]);
-
-    const m = bulanIndo[namaBulan] || bulanEng[namaBulan];
-    if (!m) return null;
-
     return { d, m, y };
   }
-
   return null;
 }
 
-// =====================================
-//  INISIALISASI FILTER BULAN & TAHUN
-// =====================================
-function initFilter(){
-  bulanList.forEach((b,i)=>{
-    bulanAwal.innerHTML += `<option value="${i+1}">${b}</option>`;
-    bulanAkhir.innerHTML += `<option value="${i+1}">${b}</option>`;
-  });
-  [2025,2026,2027].forEach(t=>{
-    tahunAwal.innerHTML += `<option value="${t}">${t}</option>`;
-    tahunAkhir.innerHTML += `<option value="${t}">${t}</option>`;
-  });
-
-  bulanAwal.value = 1;
-  bulanAkhir.value = 12;
-  tahunAwal.value = 2025;
-  tahunAkhir.value = 2025;
+// menentukan range triwulan
+function getTriwulanRange(triwulan, tahun) {
+  switch (triwulan) {
+    case 1: return { start: { d:1, m:1, y:tahun }, end:{ d:31, m:3, y:tahun }};
+    case 2: return { start: { d:1, m:4, y:tahun }, end:{ d:30, m:6, y:tahun }};
+    case 3: return { start: { d:1, m:7, y:tahun }, end:{ d:30, m:9, y:tahun }};
+    case 4: return { start: { d:1, m:10, y:tahun }, end:{ d:31, m:12, y:tahun }};
+  }
 }
-initFilter();
 
-window.onload = () => loadData();
-
-const API_URL = "https://script.google.com/macros/s/AKfycbylKLAQyLg6hldI31tQxFvVUxvYXf9erl_1jW2qWNcwe0mh9DCBMO590C7z8_UgIA29RQ/exec";
-
-// =============================
-//      LOAD DATA DARI API
-// =============================
 async function loadData(){
-  const bAw = parseInt(bulanAwal.value);
-  const tAw = parseInt(tahunAwal.value);
-  const bAk = parseInt(bulanAkhir.value);
-  const tAk = parseInt(tahunAkhir.value);
+  const jenis = document.getElementById("jenisFilter").value;
+  const tri = parseInt(document.getElementById("triwulanFilter").value);
+  const tahun = parseInt(document.getElementById("tahunFilter").value);
+
+  const range = getTriwulanRange(tri, tahun);
 
   document.querySelector("#tabelData tbody").innerHTML =
     `<tr><td colspan="7">Mengambil data...</td></tr>`;
@@ -220,58 +189,57 @@ async function loadData(){
     const data = await res.json();
 
     const hasil = data.filter(row => {
-      const tgl = row["Tanggal SP2D"];
-      const t = parseTanggal(tgl);
+      // filter jenis
+      if (jenis !== "ALL" && row["Jenis"] !== jenis) return false;
+
+      // filter tanggal
+      const t = parseTanggal(row["Tanggal SP2D"]);
       if (!t) return false;
 
-      const current = t.y * 100 + t.m;
-      const start = tAw * 100 + bAw;
-      const end   = tAk * 100 + bAk;
+      const val = t.y * 10000 + t.m * 100 + t.d;
+      const start = range.start.y * 10000 + range.start.m * 100 + range.start.d;
+      const end = range.end.y * 10000 + range.end.m * 100 + range.end.d;
 
-      return current >= start && current <= end;
+      return val >= start && val <= end;
     });
 
     const tbody = document.querySelector("#tabelData tbody");
     tbody.innerHTML = "";
 
     if (hasil.length === 0){
-      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data dalam rentang tersebut.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data pada periode tersebut.</td></tr>`;
       return;
     }
 
-    let totalPenyaluran = 0;
-    let totalPPh = 0;
-    let totalJknPns = 0;
-    let totalJknP3k = 0;
+    let sumBruto = 0;
+    let sumPPh = 0;
+    let sumJkn = 0;
 
-    hasil.forEach(row=>{
-      const nilai = Number(row["Nilai SP2D"]) || 0;
-      const pph = Number(row["PPh"]) || 0;
-      const jpns = Number(row["Jkn Pns"]) || 0;
-      const jp3k = Number(row["Jkn P3k"]) || 0;
+    hasil.forEach(row => {
+      const bruto = Number(row["Bruto"]) || 0;
+      const pph   = Number(row["PPh"]) || 0;
+      const jkn   = Number(row["Jkn"]) || 0;
 
-      totalPenyaluran += nilai;
-      totalPPh += pph;
-      totalJknPns += jpns;
-      totalJknP3k += jp3k;
+      sumBruto += bruto;
+      sumPPh += pph;
+      sumJkn += jkn;
 
       tbody.innerHTML += `
         <tr>
           <td>${row["Jenis"]}</td>
+          <td>${row["Nomor SP2D"]}</td>
           <td>${row["Tanggal SP2D"]}</td>
-          <td>${nilai.toLocaleString("id-ID")}</td>
+          <td>${bruto.toLocaleString("id-ID")}</td>
           <td>${pph.toLocaleString("id-ID")}</td>
-          <td>${jpns.toLocaleString("id-ID")}</td>
-          <td>${jp3k.toLocaleString("id-ID")}</td>
+          <td>${jkn.toLocaleString("id-ID")}</td>
           <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
         </tr>
       `;
     });
 
-    document.getElementById("sumTotalPenyaluran").textContent = totalPenyaluran.toLocaleString("id-ID");
-    document.getElementById("sumPPh").textContent = totalPPh.toLocaleString("id-ID");
-    document.getElementById("sumJknPns").textContent = totalJknPns.toLocaleString("id-ID");
-    document.getElementById("sumJknP3k").textContent = totalJknP3k.toLocaleString("id-ID");
+    document.getElementById("sumBruto").textContent = sumBruto.toLocaleString("id-ID");
+    document.getElementById("sumPPh").textContent = sumPPh.toLocaleString("id-ID");
+    document.getElementById("sumJkn").textContent = sumJkn.toLocaleString("id-ID");
 
   } catch (err){
     console.error(err);
