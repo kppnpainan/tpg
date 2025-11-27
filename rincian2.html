@@ -49,6 +49,15 @@
     background:#16324f;
     transform:scale(1.03);
   }
+
+  /* tombol input data warna hijau */
+  .btn-input {
+    background:#2a9d8f !important;
+  }
+  .btn-input:hover {
+    background:#21867b !important;
+  }
+
   .table-wrapper {
     max-width:1100px;
     margin:30px auto;
@@ -115,6 +124,9 @@
   </select>
 
   <button onclick="loadData()">Tampilkan</button>
+
+  <!-- 🔥 Tombol baru: INPUT DATA -->
+  <button class="btn-input" onclick="gotoInput()">Input Data</button>
 </div>
 
 <div class="table-wrapper">
@@ -127,12 +139,12 @@
         <th>Bruto</th>
         <th>PPh</th>
         <th>JKN</th>
-	<th>Jml Penerima</th>
+        <th>Jml Penerima</th>
         <th>Detil Penerima</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="7">Memuat data...</td></tr>
+      <tr><td colspan="8">Memuat data...</td></tr>
     </tbody>
     <tfoot>
       <tr>
@@ -140,7 +152,7 @@
         <td id="sumBruto">0</td>
         <td id="sumPPh">0</td>
         <td id="sumJkn">0</td>
-	<td id="sumJml">0</td>
+        <td id="sumJml">0</td>
         <td>-</td>
       </tr>
     </tfoot>
@@ -150,19 +162,21 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
 
+/* 🔥 Fungsi menuju halaman input.html */
+function gotoInput(){
+  window.location.href = "input.html";
+}
+
 function parseTanggal(tgl){
   if(!tgl) return null;
-
   const iso = new Date(tgl);
   if(!isNaN(iso.getTime())){
     return { d: iso.getDate(), m: iso.getMonth()+1, y: iso.getFullYear() };
   }
-
   const bulanIndo = {
     Januari:1, Februari:2, Maret:3, April:4, Mei:5, Juni:6,
     Juli:7, Agustus:8, September:9, Oktober:10, November:11, Desember:12
   };
-
   const parts = tgl.split(" ");
   if(parts.length===3){
     const d = Number(parts[0]);
@@ -172,7 +186,6 @@ function parseTanggal(tgl){
       return { d,m,y };
     }
   }
-
   return null;
 }
 
@@ -191,7 +204,7 @@ async function loadData(){
   const tahun = parseInt(document.getElementById("tahunFilter").value);
 
   document.querySelector("#tabelData tbody").innerHTML =
-    `<tr><td colspan="7">Mengambil data...</td></tr>`;
+    `<tr><td colspan="8">Mengambil data...</td></tr>`;
 
   try {
     const res = await fetch(API_URL);
@@ -203,18 +216,14 @@ async function loadData(){
       hasil = hasil.filter(r => r["Jenis"] === jenis);
     }
 
-    // Jika triwulan = ALL → tampilkan semua data
     if(tri !== "ALL"){
       const range = getTriwulanRange(tri, tahun);
-
       hasil = hasil.filter(row => {
         const t = parseTanggal(row["Tanggal SP2D"]);
         if(!t) return false;
-
         const val = t.y*10000 + t.m*100 + t.d;
         const start = range.start.y*10000 + range.start.m*100 + range.start.d;
         const end   = range.end.y*10000 + range.end.m*100 + range.end.d;
-
         return val >= start && val <= end;
       });
     }
@@ -223,7 +232,7 @@ async function loadData(){
     tbody.innerHTML = "";
 
     if(hasil.length === 0){
-      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8">Tidak ada data.</td></tr>`;
       return;
     }
 
@@ -248,7 +257,7 @@ async function loadData(){
           <td>${bruto.toLocaleString("id-ID")}</td>
           <td>${pph.toLocaleString("id-ID")}</td>
           <td>${jkn.toLocaleString("id-ID")}</td>
-	  <td>${jml.toLocaleString("id-ID")}</td>
+          <td>${jml.toLocaleString("id-ID")}</td>
           <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
         </tr>
       `;
@@ -262,11 +271,10 @@ async function loadData(){
   } catch(e){
     console.error(e);
     document.querySelector("#tabelData tbody").innerHTML =
-      `<tr><td colspan="7" style="color:red;">Gagal memuat data.</td></tr>`;
+      `<tr><td colspan="8" style="color:red;">Gagal memuat data.</td></tr>`;
   }
 }
 
-// saat halaman dibuka → otomatis pilih "Semua" lalu load data
 window.onload = function(){
   document.getElementById("triwulanFilter").value = "ALL";
   loadData();

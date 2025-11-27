@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login – KPPN Painan</title>
+
+<style>
+body {
+    background: #eef2f7;
+    font-family: Calibri, Arial;
+    padding: 40px;
+}
+.login-box {
+    width: 350px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+h2 { text-align: center; margin-bottom: 20px; }
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    background: #1d3557;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.error {
+    color: red;
+    text-align: center;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <h2>Login Pengguna</h2>
+
+    <div id="err" class="error">User atau Password salah!</div>
+
+    <input type="text" id="user" placeholder="User" />
+    <input type="password" id="pass" placeholder="Password" />
+
+    <button onclick="login()">Masuk</button>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbyyFbErL99uPMOI4-ps8Q3ZAWetJ-W3tPyQSzvYeuioeJqAbsYmKCLdrwzgbJuqQ0gpwA/exec";
+
+async function login(){
+    const u = document.getElementById("user").value.trim();
+    const p = document.getElementById("pass").value.trim();
+
+    if(!u || !p){
+        showErr("Silakan isi username dan password!");
+        return;
+    }
+
+    const url = `${API}?mode=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(data.status !== "ok"){
+        showErr("User atau password salah!");
+        return;
+    }
+
+    // Redirect berdasarkan wewenang
+    if(data.wewenang === "Admin"){
+        window.location.href = "rincian2.html";
+    } else {
+        window.location.href = "rincian.html";
+    }
+}
+
+function showErr(msg){
+    const e = document.getElementById("err");
+    e.innerHTML = msg;
+    e.style.display = "block";
+}
+</script>
+
+</body>
+</html>
