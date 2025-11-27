@@ -161,8 +161,8 @@ button[disabled] {
 </div>
 
 <script>
-// *** URL SCRIPT BARU DARI PENGGUNA ***
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYVtOERHnos-cJsG1M6o4M4wQ5dUO1nKdBD4c8faGPqck6PhpsPc4USQ8gVtsO15xP-Q/exec";
+// *** URL SCRIPT BARU DARI PENGGUNA TELAH DIPERBARUI DI SINI ***
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxj7J6cXWSISkzSY9QayAs1scDlZJ0Cs-zD9WfmnyXuYN5QcFawgUdUl1MJ8NFZoWvvxw/exec";
 
 async function kirim() {
     const resultEl = document.getElementById("result");
@@ -197,7 +197,7 @@ async function kirim() {
         return;
     }
     
-    // Validasi Input Angka (Memastikan angka valid dan >= 0, Jml >= 1)
+    // Validasi Input Angka
     const BrutoNum = Number(data.Bruto);
     const PPhNum = Number(data.PPh);
     const JknNum = Number(data.Jkn);
@@ -209,7 +209,7 @@ async function kirim() {
         return;
     }
 
-    // Konversi nilai ke format Angka sebelum dikirim (untuk Apps Script)
+    // Konversi nilai ke format Angka sebelum dikirim
     data.Bruto = BrutoNum;
     data.PPh = PPhNum;
     data.Jkn = JknNum;
@@ -228,7 +228,7 @@ async function kirim() {
 
         const result = await response.json();
         
-        // Hitung Netto untuk ditampilkan (tambahan UX)
+        // Hitung Netto untuk ditampilkan
         const netto = BrutoNum - PPhNum - JknNum;
         const nettoFormatted = new Intl.NumberFormat('id-ID').format(netto);
 
