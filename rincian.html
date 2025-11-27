@@ -127,7 +127,7 @@
         <th>Bruto</th>
         <th>PPh</th>
         <th>JKN</th>
-	<th>Jml Penerima</th>
+        <th>Jml Penerima</th>
         <th>Detil Penerima</th>
       </tr>
     </thead>
@@ -140,7 +140,7 @@
         <td id="sumBruto">0</td>
         <td id="sumPPh">0</td>
         <td id="sumJkn">0</td>
-	<td id="sumJml">0</td>
+        <td id="sumJml">0</td>
         <td>-</td>
       </tr>
     </tfoot>
@@ -150,6 +150,22 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
 
+/* ----------------- FORMAT TANGGAL: 12 Februari 2025 ----------------- */
+function formatTanggalIndo(tglString){
+  if(!tglString) return "-";
+
+  const tgl = new Date(tglString);
+  if(isNaN(tgl.getTime())) return tglString;
+
+  const bulan = [
+    "Januari","Februari","Maret","April","Mei","Juni",
+    "Juli","Agustus","September","Oktober","November","Desember"
+  ];
+
+  return `${tgl.getDate()} ${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
+}
+
+/* ----------------- PARSE UNTUK FILTER TRIWULAN ----------------- */
 function parseTanggal(tgl){
   if(!tgl) return null;
 
@@ -164,7 +180,7 @@ function parseTanggal(tgl){
   };
 
   const parts = tgl.split(" ");
-  if(parts.length===3){
+  if(parts.length>=3){
     const d = Number(parts[0]);
     const m = bulanIndo[parts[1]];
     const y = Number(parts[2]);
@@ -185,6 +201,7 @@ function getTriwulanRange(triwulan, tahun){
   }[triwulan];
 }
 
+/* ----------------- LOAD DATA ----------------- */
 async function loadData(){
   const jenis = document.getElementById("jenisFilter").value;
   const tri = document.getElementById("triwulanFilter").value;
@@ -203,7 +220,6 @@ async function loadData(){
       hasil = hasil.filter(r => r["Jenis"] === jenis);
     }
 
-    // Jika triwulan = ALL → tampilkan semua data
     if(tri !== "ALL"){
       const range = getTriwulanRange(tri, tahun);
 
@@ -244,11 +260,11 @@ async function loadData(){
         <tr>
           <td>${row["Jenis"]}</td>
           <td>${row["Nomor SP2D"]}</td>
-          <td>${row["Tanggal SP2D"]}</td>
+          <td>${formatTanggalIndo(row["Tanggal SP2D"])}</td>
           <td>${bruto.toLocaleString("id-ID")}</td>
           <td>${pph.toLocaleString("id-ID")}</td>
           <td>${jkn.toLocaleString("id-ID")}</td>
-	  <td>${jml.toLocaleString("id-ID")}</td>
+          <td>${jml.toLocaleString("id-ID")}</td>
           <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
         </tr>
       `;
@@ -266,7 +282,6 @@ async function loadData(){
   }
 }
 
-// saat halaman dibuka → otomatis pilih "Semua" lalu load data
 window.onload = function(){
   document.getElementById("triwulanFilter").value = "ALL";
   loadData();

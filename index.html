@@ -172,7 +172,7 @@
 <button class="btn" onclick="gotoDetail()">Cek Detil Data</button>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyyFbErL99uPMOI4-ps8Q3ZAWetJ-W3tPyQSzvYeuioeJqAbsYmKCLdrwzgbJuqQ0gpwA/exec";
+const API = "https://script.google.com/macros/s/AKfycbzBLUJwYz3AYMYOIvrQ0gJJXEU-sOsbHXSkgnDTBW34LTyBOY_UT9qt7WVBjJ7eChJ1Ug/exec";
 
 let sheet1 = [];
 let sheet2 = [];
@@ -185,16 +185,34 @@ window.onload = async () => {
 };
 
 async function loadData(){
-    const s1 = await fetch(API+"?mode=sheet1").then(r=>r.json());
-    const s2 = await fetch(API+"?mode=sheet2").then(r=>r.json());
+    try{
+        const s1 = await fetch(API+"?mode=sheet1").then(r=>r.json());
+        const s2 = await fetch(API+"?mode=sheet2").then(r=>r.json());
 
-    sheet1 = s1.data ?? [];
-    sheet2 = s2.data ?? [];
+        sheet1 = s1.data || s1.sheet1 || [];
+        sheet2 = s2.data || s2.sheet2 || [];
+
+        console.log("Sheet1:", sheet1);
+        console.log("Sheet2:", sheet2);
+
+    }catch(err){
+        console.error("Gagal load API:", err);
+    }
 }
 
 document.querySelectorAll("select").forEach(sel=>{
     sel.addEventListener("change", applyFilter);
 });
+
+function parseTanggal(t){
+    if(!t) return new Date("1900-01-01");
+
+    if(t.includes("/")){
+        let [d,m,y] = t.split("/");
+        return new Date(`${y}-${m}-${d}`);
+    }
+    return new Date(t);
+}
 
 function applyFilter(){
     const jenis = document.getElementById("filterJenis").value;
@@ -204,7 +222,7 @@ function applyFilter(){
     let data = sheet1;
 
     data = data.filter(d => {
-        let tgl = new Date(d["Tanggal SP2D"]);
+        let tgl = parseTanggal(d["Tanggal SP2D"]);
         return String(tgl.getFullYear()) === tahun;
     });
 
@@ -213,7 +231,7 @@ function applyFilter(){
 
     if(tw !== "Semua"){
         data = data.filter(d => {
-            let m = new Date(d["Tanggal SP2D"]).getMonth()+1;
+            let m = parseTanggal(d["Tanggal SP2D"]).getMonth()+1;
             return Math.ceil(m/3) == tw;
         });
     }
@@ -227,21 +245,21 @@ function renderTable(data){
     tbody.innerHTML = "";
 
     let pagu = {
-        "TPG": Number(sheet2[0]["Pagu TPG"]) || 0,
-        "Tamsil": Number(sheet2[0]["Pagu Tamsil"]) || 0,
-        "TKG": Number(sheet2[0]["Pagu TKG"]) || 0
+        TPG: Number(sheet2[0]?.["Pagu TPG"] || 0),
+        TKG: Number(sheet2[0]?.["Pagu TKG"] || 0),
+        Tamsil: Number(sheet2[0]?.["Pagu Tamsil"] || 0),
     };
 
-    let realisasi = { TPG:0, Tamsil:0, TKG:0 };
-    let penerima = { TPG:0, Tamsil:0, TKG:0 };
-    let pph = { TPG:0, Tamsil:0, TKG:0 };
-    let jkn = { TPG:0, Tamsil:0, TKG:0 };
+    let realisasi = { TPG:0, TKG:0, Tamsil:0 };
+    let penerima = { TPG:0, TKG:0, Tamsil:0 };
+    let pph = { TPG:0, TKG:0, Tamsil:0 };
+    let jkn = { TPG:0, TKG:0, Tamsil:0 };
 
     data.forEach(d=>{
-        let bruto = Number(String(d.Bruto).replace(/[^0-9]/g,"")) || 0;
+        let bruto = Number(String(d.Bruto).replace(/\D/g,"")) || 0;
         let jml = Number(d.Jml) || 0;
-        let potPPh = Number(String(d.PPh).replace(/[^0-9]/g,"")) || 0;
-        let potJkn = Number(String(d.Jkn).replace(/[^0-9]/g,"")) || 0;
+        let potPPh = Number(String(d.PPh).replace(/\D/g,"")) || 0;
+        let potJkn = Number(String(d.Jkn).replace(/\D/g,"")) || 0;
 
         realisasi[d.Jenis] += bruto;
         penerima[d.Jenis] += jml;
@@ -250,7 +268,7 @@ function renderTable(data){
     });
 
     ["TPG","TKG","Tamsil"].forEach(j=>{
-        let pg = pagu[j] ?? 0;
+        let pg = pagu[j] || 0;
         let rl = realisasi[j];
         let jml = penerima[j];
         let pot1 = pph[j];
@@ -278,16 +296,16 @@ function renderCharts(data){
     let jkn = {TPG:0, TKG:0, Tamsil:0};
 
     data.forEach(d=>{
-        real[d.Jenis] += Number(String(d.Bruto).replace(/[^0-9]/g,"")) || 0;
+        real[d.Jenis] += Number(String(d.Bruto).replace(/\D/g,"")) || 0;
         count[d.Jenis] += Number(d.Jml) || 0;
-        pph[d.Jenis] += Number(String(d.PPh).replace(/[^0-9]/g,"")) || 0;
-        jkn[d.Jenis] += Number(String(d.Jkn).replace(/[^0-9]/g,"")) || 0;
+        pph[d.Jenis] += Number(String(d.PPh).replace(/\D/g,"")) || 0;
+        jkn[d.Jenis] += Number(String(d.Jkn).replace(/\D/g,"")) || 0;
     });
 
     let pagu = [
-        Number(sheet2[0]["Pagu TPG"]) || 0,
-        Number(sheet2[0]["Pagu TKG"]) || 0,
-        Number(sheet2[0]["Pagu Tamsil"]) || 0
+        Number(sheet2[0]?.["Pagu TPG"] || 0),
+        Number(sheet2[0]?.["Pagu TKG"] || 0),
+        Number(sheet2[0]?.["Pagu Tamsil"] || 0)
     ];
 
     if(barChart) barChart.destroy();
@@ -308,10 +326,8 @@ function renderCharts(data){
         data:{
             labels:["TPG","TKG","Tamsil"],
             datasets:[
-                {
-                    data:[count.TPG,count.TKG,count.Tamsil],
-                    backgroundColor:["#1d3557","#457b9d","#a8dadc"]
-                }
+                { data:[count.TPG,count.TKG,count.Tamsil],
+                  backgroundColor:["#1d3557","#457b9d","#a8dadc"] }
             ]
         }
     });

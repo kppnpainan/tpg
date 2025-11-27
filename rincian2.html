@@ -16,9 +16,56 @@
   h2 {
     text-align:center;
     font-size:24px;
-    margin-bottom:25px;
+    margin-bottom:15px;
     text-decoration:underline;
   }
+
+  /* ==================== TOMBOL SEJAJAR ==================== */
+  .top-buttons {
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+  }
+
+  .top-buttons button {
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+    color:white;
+    transition:0.2s;
+  }
+
+  /* Warna tombol */
+  .btn-input {
+    background:#2a9d8f;
+  }
+  .btn-input:hover {
+    background:#1f7d72;
+    transform:scale(1.05);
+  }
+
+  .btn-pagu {
+    background:#e9c46a;
+    color:#333;
+  }
+  .btn-pagu:hover {
+    background:#d4ac4d;
+    transform:scale(1.05);
+  }
+
+  .btn-tampil {
+    background:#1d3557;
+  }
+  .btn-tampil:hover {
+    background:#16324f;
+    transform:scale(1.05);
+  }
+  /* ========================================================= */
+
   .filter-box {
     max-width:850px;
     margin:auto;
@@ -32,30 +79,11 @@
     align-items:center;
     justify-content:center;
   }
-  select, button {
+  select {
     padding:10px 12px;
     border:1px solid #ccc;
     border-radius:8px;
     font-size:14px;
-  }
-  button {
-    background:#1d3557;
-    color:white;
-    border:none;
-    cursor:pointer;
-    transition:.2s;
-  }
-  button:hover {
-    background:#16324f;
-    transform:scale(1.03);
-  }
-
-  /* tombol input data warna hijau */
-  .btn-input {
-    background:#2a9d8f !important;
-  }
-  .btn-input:hover {
-    background:#21867b !important;
   }
 
   .table-wrapper {
@@ -98,6 +126,9 @@
 
 <h2>Rincian Penyaluran KPPN Painan</h2>
 
+<!-- =================== TOMBOL DI ATAS FILTER =================== -->
+<!-- ============================================================= -->
+
 <div class="filter-box">
   <span>Jenis</span>
   <select id="jenisFilter">
@@ -123,10 +154,13 @@
     <option value="2027">2027</option>
   </select>
 
-  <button onclick="loadData()">Tampilkan</button>
+<div class="top-buttons">
+<button class="btn-tampil" onclick="loadData()">Tampilkan</button>
+  <button class="btn-input" onclick="location.href='input.html'">Input Data</button>
+  <button class="btn-pagu" onclick="location.href='inputpagu.html'">Input Pagu</button>
+  
+</div>
 
-  <!-- 🔥 Tombol baru: INPUT DATA -->
-  <button class="btn-input" onclick="gotoInput()">Input Data</button>
 </div>
 
 <div class="table-wrapper">
@@ -144,7 +178,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="8">Memuat data...</td></tr>
+      <tr><td colspan="7">Memuat data...</td></tr>
     </tbody>
     <tfoot>
       <tr>
@@ -162,23 +196,37 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
 
-/* 🔥 Fungsi menuju halaman input.html */
-function gotoInput(){
-  window.location.href = "input.html";
+/* FORMAT TANGGAL */
+function formatTanggalIndo(tglString){
+  if(!tglString) return "-";
+
+  const tgl = new Date(tglString);
+  if(isNaN(tgl.getTime())) return tglString;
+
+  const bulan = [
+    "Januari","Februari","Maret","April","Mei","Juni",
+    "Juli","Agustus","September","Oktober","November","Desember"
+  ];
+
+  return `${tgl.getDate()} ${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
 }
 
+/* PARSING UNTUK FILTER */
 function parseTanggal(tgl){
   if(!tgl) return null;
+
   const iso = new Date(tgl);
   if(!isNaN(iso.getTime())){
     return { d: iso.getDate(), m: iso.getMonth()+1, y: iso.getFullYear() };
   }
+
   const bulanIndo = {
     Januari:1, Februari:2, Maret:3, April:4, Mei:5, Juni:6,
     Juli:7, Agustus:8, September:9, Oktober:10, November:11, Desember:12
   };
+
   const parts = tgl.split(" ");
-  if(parts.length===3){
+  if(parts.length>=3){
     const d = Number(parts[0]);
     const m = bulanIndo[parts[1]];
     const y = Number(parts[2]);
@@ -198,13 +246,14 @@ function getTriwulanRange(triwulan, tahun){
   }[triwulan];
 }
 
+/* LOAD DATA */
 async function loadData(){
   const jenis = document.getElementById("jenisFilter").value;
   const tri = document.getElementById("triwulanFilter").value;
   const tahun = parseInt(document.getElementById("tahunFilter").value);
 
   document.querySelector("#tabelData tbody").innerHTML =
-    `<tr><td colspan="8">Mengambil data...</td></tr>`;
+    `<tr><td colspan="7">Mengambil data...</td></tr>`;
 
   try {
     const res = await fetch(API_URL);
@@ -218,12 +267,15 @@ async function loadData(){
 
     if(tri !== "ALL"){
       const range = getTriwulanRange(tri, tahun);
+
       hasil = hasil.filter(row => {
         const t = parseTanggal(row["Tanggal SP2D"]);
         if(!t) return false;
+
         const val = t.y*10000 + t.m*100 + t.d;
         const start = range.start.y*10000 + range.start.m*100 + range.start.d;
         const end   = range.end.y*10000 + range.end.m*100 + range.end.d;
+
         return val >= start && val <= end;
       });
     }
@@ -232,7 +284,7 @@ async function loadData(){
     tbody.innerHTML = "";
 
     if(hasil.length === 0){
-      tbody.innerHTML = `<tr><td colspan="8">Tidak ada data.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data.</td></tr>`;
       return;
     }
 
@@ -253,7 +305,7 @@ async function loadData(){
         <tr>
           <td>${row["Jenis"]}</td>
           <td>${row["Nomor SP2D"]}</td>
-          <td>${row["Tanggal SP2D"]}</td>
+          <td>${formatTanggalIndo(row["Tanggal SP2D"])}</td>
           <td>${bruto.toLocaleString("id-ID")}</td>
           <td>${pph.toLocaleString("id-ID")}</td>
           <td>${jkn.toLocaleString("id-ID")}</td>
@@ -271,7 +323,7 @@ async function loadData(){
   } catch(e){
     console.error(e);
     document.querySelector("#tabelData tbody").innerHTML =
-      `<tr><td colspan="8" style="color:red;">Gagal memuat data.</td></tr>`;
+      `<tr><td colspan="7" style="color:red;">Gagal memuat data.</td></tr>`;
   }
 }
 

@@ -3,246 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Input Data TPG/Tamsil/TKG</title>
-
+<title>Input Data SP2D</title>
 <style>
-/* --- Pengaturan Dasar & Tipografi --- */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #e9ecef; /* Warna latar belakang lebih lembut */
-    margin: 0;
-    padding: 20px;
-    display: flex; /* Untuk pemusatan vertikal/horizontal */
-    justify-content: center;
-    align-items: flex-start; /* Memulai dari atas */
-    min-height: 100vh;
-}
-
-.container {
-    width: 100%;
-    max-width: 450px; /* Ukuran maksimal lebih kecil untuk fokus pada mobile */
-    margin: 20px auto; /* Margin atas/bawah yang lebih baik */
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Bayangan lebih halus */
-    border-top: 5px solid #007bff; /* Garis warna di atas */
-}
-
-h2 {
-    color: #007bff;
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.8em;
-}
-
-/* --- Pengaturan Form --- */
-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #343a40;
-}
-
-input[type="text"], 
-input[type="date"], 
-input[type="number"],
-select { /* Menambahkan select */
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    box-sizing: border-box; /* Memastikan padding tidak menambah lebar total */
-    transition: border-color 0.3s, box-shadow 0.3s;
-    font-size: 1em;
-}
-
-input:focus, select:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    outline: none;
-}
-
-/* --- Pengaturan Tombol --- */
-button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 20px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 700;
-    transition: background 0.3s, transform 0.1s;
-}
-
-button:hover:not([disabled]) {
-    background: #0056b3;
-}
-
-button:active:not([disabled]) {
-    transform: scale(0.99);
-}
-
-button[disabled] {
-    background: #adb5bd; /* Warna abu-abu saat dinonaktifkan */
-    cursor: not-allowed;
-}
-
-/* --- Pengaturan Hasil Pesan --- */
-#result {
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-/* --- Media Queries (Mobile Friendly) --- */
-@media (max-width: 600px) {
     body {
-        padding: 10px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #eef1f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
     }
     .container {
-        margin: 10px;
-        padding: 20px;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 560px;
+        animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     h2 {
-        font-size: 1.5em;
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+        font-size: 22px;
+    }
+    label {
+        font-weight: 600;
+        margin-top: 12px;
+        display: block;
+        color: #444;
+    }
+    input, select {
+        width: 100%;
+        padding: 11px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid #cfd3d8;
+        font-size: 15px;
+        background: #fafafa;
+        transition: 0.2s ease;
+    }
+    input:focus, select:focus {
+        border-color: #0d6efd;
+        background: #fff;
+        box-shadow: 0 0 4px rgba(13,110,253,0.3);
+        outline: none;
     }
     button {
-        padding: 12px;
-        font-size: 1em;
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 25px;
+        transition: 0.3s ease;
     }
-}
+    button:hover {
+        background: linear-gradient(135deg, #006ae6, #004a9c);
+    }
+    .success, .error {
+        margin-top: 18px;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 600;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
 </style>
 </head>
-
 <body>
 <div class="container">
-    <h2>📝 Input Data Tunjangan Guru</h2>
+    <h2>Form Input Data SP2D</h2>
 
-    <label for="Jenis">Jenis Tunjangan</label>
-    <select id="Jenis" required>
-        <option value="" disabled selected>Pilih Jenis Tunjangan</option>
-        <option value="TPG">TPG (Tunjangan Profesi Guru)</option>
-        <option value="Tamsil">Tamsil (Tambahan Penghasilan)</option>
-        <option value="TKG">TKG (Tunjangan Khusus Guru)</option>
+    <label>Jenis</label>
+    <select id="jenis">
+        <option value="TPG">TPG</option>
+        <option value="TKG">TKG</option>
+        <option value="Tamsil">Tamsil</option>
     </select>
 
-    <label for="Nomor_SP2D">Nomor SP2D</label>
-    <input id="Nomor_SP2D" type="text" placeholder="Contoh: 001/SP2D/IX/2025" required>
+    <label>Nomor SP2D</label>
+    <input type="text" id="nomorSp2d" placeholder="Masukkan nomor SP2D">
 
-    <label for="Tanggal_SP2D">Tanggal SP2D</label>
-    <input id="Tanggal_SP2D" type="date" required>
+    <label>Tanggal SP2D</label>
+    <input type="date" id="tanggalSp2d">
 
-    <label for="Bruto">Bruto (Total Kotor)</label>
-    <input id="Bruto" type="number" placeholder="Contoh: 150000000" min="0" required>
+    <label>Bruto</label>
+    <input type="text" id="bruto" placeholder="Contoh: 57,541,800">
 
-    <label for="PPh">PPh (Pajak Penghasilan)</label>
-    <input id="PPh" type="number" placeholder="Contoh: 1500000" min="0" required>
+    <label>PPh</label>
+    <input type="text" id="pph" placeholder="Contoh: 4,401,000">
 
-    <label for="Jkn">JKN (Jaminan Kesehatan Nasional)</label>
-    <input id="Jkn" type="number" placeholder="Contoh: 0" min="0" required>
+    <label>Jkn</label>
+    <input type="text" id="jkn" placeholder="Contoh: 100000">
 
-    <label for="Jml">Jumlah Penerima</label>
-    <input id="Jml" type="number" placeholder="Contoh: 50" min="1" required>
+    <label>Jml</label>
+    <input type="number" id="jml" placeholder="Contoh: 40">
 
-    <label for="Link_Drive_Penerima">Link Drive Data Penerima</label>
-    <input id="Link_Drive_Penerima" type="text" placeholder="Masukkan URL Google Drive">
+    <label>Link Drive Penerima</label>
+    <input type="text" id="link" placeholder="Masukkan link Google Drive">
 
-    <button onclick="kirim()">💾 Simpan Data</button>
+    <button onclick="kirimData()">Simpan Data</button>
 
-    <p id="result"></p>
+    <div id="notif"></div>
 </div>
 
 <script>
-// *** URL SCRIPT BARU DARI PENGGUNA TELAH DIPERBARUI DI SINI ***
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxj7J6cXWSISkzSY9QayAs1scDlZJ0Cs-zD9WfmnyXuYN5QcFawgUdUl1MJ8NFZoWvvxw/exec";
-
-async function kirim() {
-    const resultEl = document.getElementById("result");
-    const buttonEl = document.querySelector("button");
-
-    // Menonaktifkan tombol untuk mencegah klik ganda
-    buttonEl.disabled = true;
-
-    // Memastikan Jenis memiliki nilai yang valid
-    const jenisValue = document.getElementById("Jenis").value;
-    if (!jenisValue) {
-        resultEl.innerHTML = "❌ Harap pilih **Jenis Tunjangan**.";
-        buttonEl.disabled = false;
-        return;
-    }
+function kirimData() {
+    const url = "https://script.google.com/macros/s/AKfycbz5bt9vf52TdRlJn0d7YtbWAitNb660YRxE86uDIAqoiVeqPx3HKfgsfZN55CpiKdFSwg/exec";
 
     const data = {
-        Jenis: jenisValue,
-        Nomor_SP2D: document.getElementById("Nomor_SP2D").value,
-        Tanggal_SP2D: document.getElementById("Tanggal_SP2D").value,
-        Bruto: document.getElementById("Bruto").value,
-        PPh: document.getElementById("PPh").value,
-        Jkn: document.getElementById("Jkn").value,
-        Jml: document.getElementById("Jml").value,
-        Link_Drive_Penerima: document.getElementById("Link_Drive_Penerima").value
+        jenis: document.getElementById("jenis").value,
+        nomorSp2d: document.getElementById("nomorSp2d").value,
+        tanggalSp2d: document.getElementById("tanggalSp2d").value,
+        bruto: document.getElementById("bruto").value,
+        pph: document.getElementById("pph").value,
+        jkn: document.getElementById("jkn").value,
+        jml: document.getElementById("jml").value,
+        link: document.getElementById("link").value
     };
 
-    // Validasi dasar (untuk berjaga-jaga jika atribut 'required' dilewati)
-    if (!data.Nomor_SP2D || !data.Tanggal_SP2D || !data.Bruto || !data.Jml) {
-        resultEl.innerHTML = "❌ Semua kolom wajib (kecuali link) harus diisi.";
-        buttonEl.disabled = false;
-        return;
-    }
-    
-    // Validasi Input Angka
-    const BrutoNum = Number(data.Bruto);
-    const PPhNum = Number(data.PPh);
-    const JknNum = Number(data.Jkn);
-    const JmlNum = Number(data.Jml);
-
-    if (isNaN(BrutoNum) || BrutoNum < 0 || isNaN(PPhNum) || PPhNum < 0 || isNaN(JknNum) || JknNum < 0 || isNaN(JmlNum) || JmlNum < 1) {
-        resultEl.innerHTML = "❌ Bruto, PPh, JKN harus berupa angka non-negatif, dan Jumlah Penerima harus minimal 1.";
-        buttonEl.disabled = false;
-        return;
-    }
-
-    // Konversi nilai ke format Angka sebelum dikirim
-    data.Bruto = BrutoNum;
-    data.PPh = PPhNum;
-    data.Jkn = JknNum;
-    data.Jml = JmlNum;
-    
-    // Tampilkan pesan loading
-    resultEl.innerHTML = "⏳ Mengirim data, harap tunggu...";
-    
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: { "Content-Type": "application/json" },
-            mode: "cors"
-        });
-
-        const result = await response.json();
-        
-        // Hitung Netto untuk ditampilkan
-        const netto = BrutoNum - PPhNum - JknNum;
-        const nettoFormatted = new Intl.NumberFormat('id-ID').format(netto);
-
-        resultEl.innerHTML =
-            result.status === "ok" ? 
-            `✅ Data berhasil disimpan! Netto: **Rp${nettoFormatted}**` : 
-            "❌ " + (result.message || "Terjadi kesalahan saat menyimpan data.");
-
-    } catch (err) {
-        resultEl.innerHTML = "❌ ERROR: Gagal terhubung ke server. Pastikan skrip Apps Script sudah dideploy dengan benar. Pesan: " + err.message;
-    } finally {
-        // Aktifkan kembali tombol setelah proses selesai
-        buttonEl.disabled = false;
-    }
+    fetch(url, {
+        method: "POST",
+        contentType: "application/json",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.text())
+    .then(response => {
+        document.getElementById("notif").innerHTML = `<div class='success'>${response}</div>`;
+    })
+    .catch(err => {
+        document.getElementById("notif").innerHTML = `<div class='error'>Terjadi kesalahan: ${err}</div>`;
+    });
 }
 </script>
 

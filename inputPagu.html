@@ -3,138 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Input Pagu</title>
+<title>Input Pagu - TPG / Tamsil / TKG</title>
 
 <style>
     body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f4f6f9;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
         margin: 0;
         padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
     }
 
     .container {
-        max-width: 450px;
-        margin: 50px auto;
-        background: #fff;
-        padding: 25px 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 90%;
+        max-width: 420px;
+        background: white;
+        padding: 28px 30px;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     h2 {
         text-align: center;
         margin-bottom: 25px;
         color: #333;
+        font-size: 22px;
     }
 
     label {
+        font-size: 15px;
         font-weight: 600;
-        margin-bottom: 5px;
+        color: #444;
+        margin-bottom: 6px;
         display: block;
     }
 
-    input[type="number"],
-    input[type="text"] {
+    input[type="number"] {
         width: 100%;
-        padding: 12px;
-        margin-bottom: 18px;
-        border-radius: 8px;
+        padding: 12px 14px;
+        border-radius: 10px;
         border: 1px solid #ccc;
+        margin-bottom: 18px;
         font-size: 15px;
+        transition: 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+        outline: none;
     }
 
     button {
         width: 100%;
-        padding: 12px;
+        padding: 13px;
+        border: none;
+        border-radius: 10px;
         background: #007bff;
         color: white;
-        border: none;
-        border-radius: 8px;
         font-size: 16px;
         cursor: pointer;
         font-weight: 600;
+        transition: 0.3s ease;
     }
 
     button:hover {
         background: #0056b3;
     }
 
+    button:disabled {
+        background: #cccccc;
+    }
+
     .msg {
-        margin-top: 15px;
-        padding: 12px;
-        border-radius: 8px;
         display: none;
         text-align: center;
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 10px;
         font-weight: 600;
+        font-size: 14px;
     }
 
     .success {
         background: #d4edda;
         color: #155724;
+        display: block;
     }
 
     .error {
         background: #f8d7da;
         color: #721c24;
+        display: block;
     }
 </style>
 </head>
+
 <body>
 
 <div class="container">
     <h2>Input Pagu TPG / Tamsil / TKG</h2>
 
-    <label>Pagu TPG</label>
-    <input type="number" id="paguTPG" placeholder="Masukkan nilai Pagu TPG">
+    <form id="paguForm">
+        <label for="paguTPG">Pagu TPG</label>
+        <input type="number" id="paguTPG" name="paguTPG" required min="0" placeholder="Masukkan nilai TPG">
 
-    <label>Pagu Tamsil</label>
-    <input type="number" id="paguTamsil" placeholder="Masukkan nilai Pagu Tamsil">
+        <label for="paguTamsil">Pagu Tamsil</label>
+        <input type="number" id="paguTamsil" name="paguTamsil" required min="0" placeholder="Masukkan nilai Tamsil">
 
-    <label>Pagu TKG</label>
-    <input type="number" id="paguTKG" placeholder="Masukkan nilai Pagu TKG">
+        <label for="paguTKG">Pagu TKG</label>
+        <input type="number" id="paguTKG" name="paguTKG" required min="0" placeholder="Masukkan nilai TKG">
 
-    <button onclick="kirimData()">Simpan Pagu</button>
+        <button type="submit" id="submitButton">Simpan Pagu</button>
+    </form>
 
     <div id="message" class="msg"></div>
 </div>
 
 <script>
-function kirimData() {
-    const paguTPG = document.getElementById("paguTPG").value;
-    const paguTamsil = document.getElementById("paguTamsil").value;
-    const paguTKG = document.getElementById("paguTKG").value;
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxag4cC4rqMzfnsnkNaXrUsDgr4CG1MbRYbfEImni1w2B0pN2dXL1sCQ0-2nNRpGV3hSg/exec";
 
-    if (!paguTPG || !paguTamsil || !paguTKG) {
-        tampilkanPesan("Semua kolom harus diisi", "error");
-        return;
+const form = document.getElementById("paguForm");
+const messageBox = document.getElementById("message");
+const submitButton = document.getElementById("submitButton");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+        paguTPG: document.getElementById("paguTPG").value,
+        paguTamsil: document.getElementById("paguTamsil").value,
+        paguTKG: document.getElementById("paguTKG").value
+    };
+
+    submitButton.disabled = true;
+    submitButton.innerText = "Mengirim...";
+
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+
+        const text = await response.text();
+        showMessage(text, "success");
+        form.reset();
+    } catch (err) {
+        showMessage("Gagal mengirim data: " + err, "error");
     }
 
-    const url = "https://script.google.com/macros/s/AKfycbyJ7hZfLegv0W69I7t77H-qFfEL-pMqKKefLX3JCYgZAJLb9wxMep0aui3ObM5m_7MFqA/exec";  // URL Web App
+    submitButton.disabled = false;
+    submitButton.innerText = "Simpan Pagu";
+});
 
-    fetch(url, {
-        method: "POST",
-        contentType: "application/json",
-        body: JSON.stringify({
-            paguTPG: paguTPG,
-            paguTamsil: paguTamsil,
-            paguTKG: paguTKG
-        })
-    })
-    .then(res => res.text())
-    .then(text => tampilkanPesan(text, "success"))
-    .catch(err => tampilkanPesan("Gagal mengirim data: " + err, "error"));
-}
-
-function tampilkanPesan(msg, tipe) {
-    const box = document.getElementById("message");
-    box.style.display = "block";
-    box.className = "msg " + tipe;
-    box.innerText = msg;
-
-    setTimeout(() => {
-        box.style.display = "none";
-    }, 3000);
+function showMessage(msg, type) {
+    messageBox.innerHTML = msg;
+    messageBox.className = `msg ${type}`;
 }
 </script>
 
