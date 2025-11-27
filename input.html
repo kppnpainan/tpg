@@ -80,12 +80,17 @@ button {
     transition: background 0.3s, transform 0.1s;
 }
 
-button:hover {
+button:hover:not([disabled]) {
     background: #0056b3;
 }
 
-button:active {
+button:active:not([disabled]) {
     transform: scale(0.99);
+}
+
+button[disabled] {
+    background: #adb5bd; /* Warna abu-abu saat dinonaktifkan */
+    cursor: not-allowed;
 }
 
 /* --- Pengaturan Hasil Pesan --- */
@@ -122,7 +127,7 @@ button:active {
     <h2>📝 Input Data Tunjangan Guru</h2>
 
     <label for="Jenis">Jenis Tunjangan</label>
-    <select id="Jenis">
+    <select id="Jenis" required>
         <option value="" disabled selected>Pilih Jenis Tunjangan</option>
         <option value="TPG">TPG (Tunjangan Profesi Guru)</option>
         <option value="Tamsil">Tamsil (Tambahan Penghasilan)</option>
@@ -130,22 +135,22 @@ button:active {
     </select>
 
     <label for="Nomor_SP2D">Nomor SP2D</label>
-    <input id="Nomor_SP2D" type="text" placeholder="Contoh: 001/SP2D/IX/2025">
+    <input id="Nomor_SP2D" type="text" placeholder="Contoh: 001/SP2D/IX/2025" required>
 
     <label for="Tanggal_SP2D">Tanggal SP2D</label>
-    <input id="Tanggal_SP2D" type="date">
+    <input id="Tanggal_SP2D" type="date" required>
 
     <label for="Bruto">Bruto (Total Kotor)</label>
-    <input id="Bruto" type="number" placeholder="Contoh: 150000000">
+    <input id="Bruto" type="number" placeholder="Contoh: 150000000" min="0" required>
 
     <label for="PPh">PPh (Pajak Penghasilan)</label>
-    <input id="PPh" type="number" placeholder="Contoh: 1500000">
+    <input id="PPh" type="number" placeholder="Contoh: 1500000" min="0" required>
 
     <label for="Jkn">JKN (Jaminan Kesehatan Nasional)</label>
-    <input id="Jkn" type="number" placeholder="Contoh: 0">
+    <input id="Jkn" type="number" placeholder="Contoh: 0" min="0" required>
 
     <label for="Jml">Jumlah Penerima</label>
-    <input id="Jml" type="number" placeholder="Contoh: 50">
+    <input id="Jml" type="number" placeholder="Contoh: 50" min="1" required>
 
     <label for="Link_Drive_Penerima">Link Drive Data Penerima</label>
     <input id="Link_Drive_Penerima" type="text" placeholder="Masukkan URL Google Drive">
@@ -156,14 +161,21 @@ button:active {
 </div>
 
 <script>
-// URL SCRIPT BARU/TERKONFIRMASI
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyFbErL99uPMOI4-ps8Q3ZAWetJ-W3tPyQSzvYeuioeJqAbsYmKCLdrwzgbJuqQ0gpwA/exec";
+// *** URL SCRIPT BARU DARI PENGGUNA ***
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYVtOERHnos-cJsG1M6o4M4wQ5dUO1nKdBD4c8faGPqck6PhpsPc4USQ8gVtsO15xP-Q/exec";
 
 async function kirim() {
+    const resultEl = document.getElementById("result");
+    const buttonEl = document.querySelector("button");
+
+    // Menonaktifkan tombol untuk mencegah klik ganda
+    buttonEl.disabled = true;
+
     // Memastikan Jenis memiliki nilai yang valid
     const jenisValue = document.getElementById("Jenis").value;
     if (!jenisValue) {
-        document.getElementById("result").innerHTML = "❌ Harap pilih Jenis Tunjangan.";
+        resultEl.innerHTML = "❌ Harap pilih **Jenis Tunjangan**.";
+        buttonEl.disabled = false;
         return;
     }
 
@@ -178,14 +190,33 @@ async function kirim() {
         Link_Drive_Penerima: document.getElementById("Link_Drive_Penerima").value
     };
 
-    // Validasi dasar
-    if (!data.Nomor_SP2D || !data.Tanggal_SP2D || !data.Bruto) {
-        document.getElementById("result").innerHTML = "❌ Nomor SP2D, Tanggal, dan Bruto wajib diisi.";
+    // Validasi dasar (untuk berjaga-jaga jika atribut 'required' dilewati)
+    if (!data.Nomor_SP2D || !data.Tanggal_SP2D || !data.Bruto || !data.Jml) {
+        resultEl.innerHTML = "❌ Semua kolom wajib (kecuali link) harus diisi.";
+        buttonEl.disabled = false;
         return;
     }
     
+    // Validasi Input Angka (Memastikan angka valid dan >= 0, Jml >= 1)
+    const BrutoNum = Number(data.Bruto);
+    const PPhNum = Number(data.PPh);
+    const JknNum = Number(data.Jkn);
+    const JmlNum = Number(data.Jml);
+
+    if (isNaN(BrutoNum) || BrutoNum < 0 || isNaN(PPhNum) || PPhNum < 0 || isNaN(JknNum) || JknNum < 0 || isNaN(JmlNum) || JmlNum < 1) {
+        resultEl.innerHTML = "❌ Bruto, PPh, JKN harus berupa angka non-negatif, dan Jumlah Penerima harus minimal 1.";
+        buttonEl.disabled = false;
+        return;
+    }
+
+    // Konversi nilai ke format Angka sebelum dikirim (untuk Apps Script)
+    data.Bruto = BrutoNum;
+    data.PPh = PPhNum;
+    data.Jkn = JknNum;
+    data.Jml = JmlNum;
+    
     // Tampilkan pesan loading
-    document.getElementById("result").innerHTML = "⏳ Mengirim data, harap tunggu...";
+    resultEl.innerHTML = "⏳ Mengirim data, harap tunggu...";
     
     try {
         const response = await fetch(SCRIPT_URL, {
@@ -196,11 +227,21 @@ async function kirim() {
         });
 
         const result = await response.json();
-        document.getElementById("result").innerHTML =
-            result.status === "ok" ? "✅ Data berhasil disimpan!" : "❌ " + (result.message || "Terjadi kesalahan saat menyimpan data.");
+        
+        // Hitung Netto untuk ditampilkan (tambahan UX)
+        const netto = BrutoNum - PPhNum - JknNum;
+        const nettoFormatted = new Intl.NumberFormat('id-ID').format(netto);
+
+        resultEl.innerHTML =
+            result.status === "ok" ? 
+            `✅ Data berhasil disimpan! Netto: **Rp${nettoFormatted}**` : 
+            "❌ " + (result.message || "Terjadi kesalahan saat menyimpan data.");
 
     } catch (err) {
-        document.getElementById("result").innerHTML = "❌ ERROR: Gagal terhubung ke server. Pastikan skrip Apps Script sudah dideploy dengan benar. Pesan: " + err;
+        resultEl.innerHTML = "❌ ERROR: Gagal terhubung ke server. Pastikan skrip Apps Script sudah dideploy dengan benar. Pesan: " + err.message;
+    } finally {
+        // Aktifkan kembali tombol setelah proses selesai
+        buttonEl.disabled = false;
     }
 }
 </script>
