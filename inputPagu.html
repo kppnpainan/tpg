@@ -1,134 +1,140 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Input Pagu – KPPN Painan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Pagu</title>
 
 <style>
-  body {
-    font-family: Calibri, Arial;
-    background:#f2f4f8;
-    margin:0;
-    padding:40px 20px;
-    color:#333;
-  }
+    body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f6f9;
+        margin: 0;
+        padding: 0;
+    }
 
-  h2 {
-    text-align:center;
-    font-size:24px;
-    margin-bottom:25px;
-    text-decoration:underline;
-  }
+    .container {
+        max-width: 450px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-  .form-box {
-    max-width:600px;
-    margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-  }
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
 
-  label {
-    font-weight:bold;
-    margin-bottom:5px;
-    display:block;
-  }
+    label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+    }
 
-  input {
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    margin-bottom:18px;
-    font-size:15px;
-  }
+    input[type="number"],
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 18px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+    }
 
-  button {
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:#2a9d8f;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.2s;
-  }
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: 600;
+    }
 
-  button:hover {
-    background:#21867b;
-    transform:scale(1.02);
-  }
+    button:hover {
+        background: #0056b3;
+    }
 
-  .back-btn {
-    margin-top:15px;
-    background:#1d3557 !important;
-  }
-  .back-btn:hover {
-    background:#16324f !important;
-  }
+    .msg {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        display: none;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .error {
+        background: #f8d7da;
+        color: #721c24;
+    }
 </style>
 </head>
-
 <body>
 
-<h2>Input Pagu Penyaluran</h2>
+<div class="container">
+    <h2>Input Pagu TPG / Tamsil / TKG</h2>
 
-<div class="form-box">
-  <label>Pagu TPG</label>
-  <input type="number" id="paguTPG" placeholder="Masukkan pagu TPG">
+    <label>Pagu TPG</label>
+    <input type="number" id="paguTPG" placeholder="Masukkan nilai Pagu TPG">
 
-  <label>Pagu Tamsil</label>
-  <input type="number" id="paguTamsil" placeholder="Masukkan pagu Tamsil">
+    <label>Pagu Tamsil</label>
+    <input type="number" id="paguTamsil" placeholder="Masukkan nilai Pagu Tamsil">
 
-  <label>Pagu TKG</label>
-  <input type="number" id="paguTKG" placeholder="Masukkan pagu TKG">
+    <label>Pagu TKG</label>
+    <input type="number" id="paguTKG" placeholder="Masukkan nilai Pagu TKG">
 
-  <button onclick="kirimPagu()">Simpan Pagu</button>
+    <button onclick="kirimData()">Simpan Pagu</button>
 
-  <button class="back-btn" onclick="window.location.href='index.html'">Kembali</button>
+    <div id="message" class="msg"></div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyJ7hZfLegv0W69I7t77H-qFfEL-pMqKKefLX3JCYgZAJLb9wxMep0aui3ObM5m_7MFqA/exec";  // ganti setelah deploy Web App
+function kirimData() {
+    const paguTPG = document.getElementById("paguTPG").value;
+    const paguTamsil = document.getElementById("paguTamsil").value;
+    const paguTKG = document.getElementById("paguTKG").value;
 
-async function kirimPagu() {
-  const tpg = document.getElementById("paguTPG").value;
-  const tamsil = document.getElementById("paguTamsil").value;
-  const tkg = document.getElementById("paguTKG").value;
-
-  if (!tpg || !tamsil || !tkg) {
-    alert("Semua kolom harus diisi!");
-    return;
-  }
-
-  const data = {
-    pagu_tpg: tpg,
-    pagu_tamsil: tamsil,
-    pagu_tkg: tkg
-  };
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" }
-    });
-
-    const hasil = await res.json();
-
-    if (hasil.status === "success") {
-      alert("Pagu berhasil diperbarui!");
-    } else {
-      alert("Gagal menyimpan: " + hasil.message);
+    if (!paguTPG || !paguTamsil || !paguTKG) {
+        tampilkanPesan("Semua kolom harus diisi", "error");
+        return;
     }
 
-  } catch (e) {
-    alert("Terjadi kesalahan saat menyimpan.");
-    console.error(e);
-  }
+    const url = "https://script.google.com/macros/s/AKfycbyJ7hZfLegv0W69I7t77H-qFfEL-pMqKKefLX3JCYgZAJLb9wxMep0aui3ObM5m_7MFqA/exec";  // URL Web App
+
+    fetch(url, {
+        method: "POST",
+        contentType: "application/json",
+        body: JSON.stringify({
+            paguTPG: paguTPG,
+            paguTamsil: paguTamsil,
+            paguTKG: paguTKG
+        })
+    })
+    .then(res => res.text())
+    .then(text => tampilkanPesan(text, "success"))
+    .catch(err => tampilkanPesan("Gagal mengirim data: " + err, "error"));
+}
+
+function tampilkanPesan(msg, tipe) {
+    const box = document.getElementById("message");
+    box.style.display = "block";
+    box.className = "msg " + tipe;
+    box.innerText = msg;
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3000);
 }
 </script>
 
