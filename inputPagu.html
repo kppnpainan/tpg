@@ -3,134 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Input Pagu - TPG / Tamsil / TKG</title>
+<title>Input Pagu – Admin</title>
+<link rel="stylesheet" href="style.css">
+
+<script>
+// =============================
+// PROTEKSI HALAMAN
+// =============================
+if (sessionStorage.getItem("logged") !== "yes") {
+    location.href = "login.html";
+}
+if (sessionStorage.getItem("role") !== "Admin") {
+    location.href = "rincian.html";
+}
+</script>
 
 <style>
-    body {
-        font-family: "Segoe UI", Tahoma, sans-serif;
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-    }
+/* Tambahan styling agar identik dengan rincian2.html */
+.card {
+    max-width: 550px;
+    margin: auto;
+    padding: 25px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: var(--shadow);
+}
 
-    .container {
-        width: 90%;
-        max-width: 420px;
-        background: white;
-        padding: 28px 30px;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        animation: fadeIn 0.4s ease-in-out;
-    }
+.page-title {
+    text-align: center;
+    background: var(--blue-dark);
+    padding: 14px;
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    font-size: 22px;
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+label {
+    font-weight: 600;
+    margin-top: 12px;
+    display: block;
+}
 
-    h2 {
-        text-align: center;
-        margin-bottom: 25px;
-        color: #333;
-        font-size: 22px;
-    }
+input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #cfd3d8;
+    margin-top: 6px;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
 
-    label {
-        font-size: 15px;
-        font-weight: 600;
-        color: #444;
-        margin-bottom: 6px;
-        display: block;
-    }
+.success, .error {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+}
+.success { background: #d4edda; color: #155724; }
+.error { background: #f8d7da; color: #721c24; }
 
-    input[type="number"] {
-        width: 100%;
-        padding: 12px 14px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        margin-bottom: 18px;
-        font-size: 15px;
-        transition: 0.3s ease;
-    }
+.buttons-top {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-    input[type="number"]:focus {
-        border-color: #4facfe;
-        box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
-        outline: none;
-    }
-
-    button {
-        width: 100%;
-        padding: 13px;
-        border: none;
-        border-radius: 10px;
-        background: #007bff;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: 0.3s ease;
-    }
-
-    button:hover {
-        background: #0056b3;
-    }
-
-    button:disabled {
-        background: #cccccc;
-    }
-
-    .msg {
-        display: none;
-        text-align: center;
-        padding: 12px;
-        margin-top: 15px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .success {
-        background: #d4edda;
-        color: #155724;
-        display: block;
-    }
-
-    .error {
-        background: #f8d7da;
-        color: #721c24;
-        display: block;
-    }
+@media(max-width:600px){
+    .buttons-top { flex-direction: column; }
+    .btn { width: 100%; }
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h2>Input Pagu TPG / Tamsil / TKG</h2>
+<!-- Tombol kembali & logout -->
+<div class="buttons-top">
+    <button class="btn btn-back" onclick="location.href='rincian2.html'">⬅ Kembali</button>
+    <button class="btn btn-danger" onclick="logout()">Logout</button>
+</div>
+
+<div class="page-title">Input Pagu – TPG / Tamsil / TKG</div>
+
+<div class="card">
 
     <form id="paguForm">
+
+        <label for="tahun">Tahun</label>
+        <select id="tahun" required>
+            <option value="">-- Pilih Tahun --</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+        </select>
+
         <label for="paguTPG">Pagu TPG</label>
-        <input type="number" id="paguTPG" name="paguTPG" required min="0" placeholder="Masukkan nilai TPG">
+        <input type="number" id="paguTPG" required min="0" placeholder="Contoh: 100000000">
 
         <label for="paguTamsil">Pagu Tamsil</label>
-        <input type="number" id="paguTamsil" name="paguTamsil" required min="0" placeholder="Masukkan nilai Tamsil">
+        <input type="number" id="paguTamsil" required min="0" placeholder="Contoh: 50000000">
 
         <label for="paguTKG">Pagu TKG</label>
-        <input type="number" id="paguTKG" name="paguTKG" required min="0" placeholder="Masukkan nilai TKG">
+        <input type="number" id="paguTKG" required min="0" placeholder="Contoh: 25000000">
 
-        <button type="submit" id="submitButton">Simpan Pagu</button>
+        <button type="submit" class="btn btn-primary" id="submitButton">Simpan Pagu</button>
     </form>
 
-    <div id="message" class="msg"></div>
+    <div id="message"></div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxag4cC4rqMzfnsnkNaXrUsDgr4CG1MbRYbfEImni1w2B0pN2dXL1sCQ0-2nNRpGV3hSg/exec";
+const WEB_APP_URL = 
+"https://script.google.com/macros/s/AKfycbwd_M-ixxA4dZptciMVF2GJS2g-Jk3xDfx4FgajkF7a9EBr4wiXJ9p6uc2QzZyeR-3S6A/exec";
 
 const form = document.getElementById("paguForm");
 const messageBox = document.getElementById("message");
@@ -140,9 +128,11 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const data = {
+        tahun: document.getElementById("tahun").value,
         paguTPG: document.getElementById("paguTPG").value,
         paguTamsil: document.getElementById("paguTamsil").value,
-        paguTKG: document.getElementById("paguTKG").value
+        paguTKG: document.getElementById("paguTKG").value,
+        mode: "inputPagu"
     };
 
     submitButton.disabled = true;
@@ -151,23 +141,29 @@ form.addEventListener("submit", async (e) => {
     try {
         const response = await fetch(WEB_APP_URL, {
             method: "POST",
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
 
         const text = await response.text();
-        showMessage(text, "success");
-        form.reset();
+
+        messageBox.innerHTML = `<div class="success">${text}</div>`;
+
+        // Redirect otomatis setelah 1.5 detik
+        setTimeout(() => {
+            location.href = "rincian2.html";
+        }, 1500);
+
     } catch (err) {
-        showMessage("Gagal mengirim data: " + err, "error");
+        messageBox.innerHTML = `<div class="error">Gagal mengirim data: ${err}</div>`;
     }
 
     submitButton.disabled = false;
     submitButton.innerText = "Simpan Pagu";
 });
 
-function showMessage(msg, type) {
-    messageBox.innerHTML = msg;
-    messageBox.className = `msg ${type}`;
+function logout() {
+    sessionStorage.clear();
+    location.href = "login.html";
 }
 </script>
 

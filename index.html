@@ -53,15 +53,12 @@
         color:white;
     }
 
-    /* >>>>>>>>>>> 3 GRAPH IN 1 ROW  <<<<<<<<<<< */
-
     .charts-container{
         display:grid;
         grid-template-columns: repeat(3, 1fr);
         gap:20px;
         margin-top:25px;
     }
-
     @media(max-width:1200px){
         .charts-container{
             grid-template-columns: repeat(2, 1fr);
@@ -80,13 +77,10 @@
         text-align:center;
         box-shadow:0 2px 6px rgba(0,0,0,0.15);
     }
-
-    /* Pie chart shrink */
     .pie-wrapper{
         width:220px;
         margin:auto;
     }
-
     .btn{
         margin-top:25px;
         display:block;
@@ -147,13 +141,11 @@
 
 <div class="charts-container">
 
-    <!-- Chart 1 -->
     <div class="chartBox">
         <h3>Pagu vs Realisasi</h3>
         <canvas id="barChart"></canvas>
     </div>
 
-    <!-- Chart 2 -->
     <div class="chartBox">
         <h3>Penerima</h3>
         <div class="pie-wrapper">
@@ -161,7 +153,6 @@
         </div>
     </div>
 
-    <!-- Chart 3 -->
     <div class="chartBox">
         <h3>Realisasi vs PPh vs JKN</h3>
         <canvas id="pphChart"></canvas>
@@ -192,9 +183,6 @@ async function loadData(){
         sheet1 = s1.data || s1.sheet1 || [];
         sheet2 = s2.data || s2.sheet2 || [];
 
-        console.log("Sheet1:", sheet1);
-        console.log("Sheet2:", sheet2);
-
     }catch(err){
         console.error("Gagal load API:", err);
     }
@@ -206,7 +194,6 @@ document.querySelectorAll("select").forEach(sel=>{
 
 function parseTanggal(t){
     if(!t) return new Date("1900-01-01");
-
     if(t.includes("/")){
         let [d,m,y] = t.split("/");
         return new Date(`${y}-${m}-${d}`);
@@ -244,10 +231,13 @@ function renderTable(data){
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = "";
 
+    const tahun = document.getElementById("filterTh").value;
+    let paguRow = sheet2.find(r => String(r.Tahun) === tahun) || {};
+
     let pagu = {
-        TPG: Number(sheet2[0]?.["Pagu TPG"] || 0),
-        TKG: Number(sheet2[0]?.["Pagu TKG"] || 0),
-        Tamsil: Number(sheet2[0]?.["Pagu Tamsil"] || 0),
+        TPG: Number(paguRow["Pagu TPG"] || 0),
+        TKG: Number(paguRow["Pagu TKG"] || 0),
+        Tamsil: Number(paguRow["Pagu Tamsil"] || 0),
     };
 
     let realisasi = { TPG:0, TKG:0, Tamsil:0 };
@@ -302,10 +292,13 @@ function renderCharts(data){
         jkn[d.Jenis] += Number(String(d.Jkn).replace(/\D/g,"")) || 0;
     });
 
+    const tahun = document.getElementById("filterTh").value;
+    let paguRow = sheet2.find(r => String(r.Tahun) === tahun) || {};
+
     let pagu = [
-        Number(sheet2[0]?.["Pagu TPG"] || 0),
-        Number(sheet2[0]?.["Pagu TKG"] || 0),
-        Number(sheet2[0]?.["Pagu Tamsil"] || 0)
+        Number(paguRow["Pagu TPG"] || 0),
+        Number(paguRow["Pagu TKG"] || 0),
+        Number(paguRow["Pagu Tamsil"] || 0)
     ];
 
     if(barChart) barChart.destroy();

@@ -1,337 +1,90 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Rincian Penyaluran TPG – KPPN Painan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rincian Penyaluran – Admin</title>
+<link rel="stylesheet" href="style.css">
 
-<style>
-  body {
-    font-family: Calibri, Arial;
-    background:#f2f4f8;
-    margin:0;
-    padding:40px 20px;
-    color:#333;
-  }
-  h2 {
-    text-align:center;
-    font-size:24px;
-    margin-bottom:15px;
-    text-decoration:underline;
-  }
-
-  /* ==================== TOMBOL SEJAJAR ==================== */
-  .top-buttons {
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    margin-bottom:25px;
-    flex-wrap:wrap;
-  }
-
-  .top-buttons button {
-    padding:10px 16px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:14px;
-    color:white;
-    transition:0.2s;
-  }
-
-  /* Warna tombol */
-  .btn-input {
-    background:#2a9d8f;
-  }
-  .btn-input:hover {
-    background:#1f7d72;
-    transform:scale(1.05);
-  }
-
-  .btn-pagu {
-    background:#e9c46a;
-    color:#333;
-  }
-  .btn-pagu:hover {
-    background:#d4ac4d;
-    transform:scale(1.05);
-  }
-
-  .btn-tampil {
-    background:#1d3557;
-  }
-  .btn-tampil:hover {
-    background:#16324f;
-    transform:scale(1.05);
-  }
-  /* ========================================================= */
-
-  .filter-box {
-    max-width:850px;
-    margin:auto;
-    background:white;
-    padding:18px;
-    border-radius:12px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    align-items:center;
-    justify-content:center;
-  }
-  select {
-    padding:10px 12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    font-size:14px;
-  }
-
-  .table-wrapper {
-    max-width:1100px;
-    margin:30px auto;
-  }
-  table {
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  }
-  th {
-    background:#e8eef7;
-    padding:12px;
-    font-weight:bold;
-    text-align:center;
-    font-size:14px;
-    border-bottom:1px solid #d6d6d6;
-  }
-  td {
-    padding:10px;
-    border-bottom:1px solid #eee;
-    font-size:14px;
-    text-align:center;
-  }
-  tr:nth-child(even) {
-    background:#fafafa;
-  }
-  tfoot td {
-    font-weight:bold;
-    background:#eef3fa;
-  }
-</style>
+<script>
+// Proteksi login
+if(sessionStorage.getItem("logged") !== "yes"){
+    location.href = "login.html";
+}
+if(sessionStorage.getItem("role") !== "Admin"){
+    location.href = "rincian.html";
+}
+</script>
 </head>
 
 <body>
 
-<h2>Rincian Penyaluran KPPN Painan</h2>
+<button class="btn btn-back" onclick="location.href='index.html'">⬅ Kembali</button>
+<div class="page-title">Rincian Penyaluran – Admin</div>
 
-<!-- =================== TOMBOL DI ATAS FILTER =================== -->
-<!-- ============================================================= -->
+<div class="card">
 
-<div class="filter-box">
-  <span>Jenis</span>
-  <select id="jenisFilter">
-    <option value="ALL">Semua</option>
-    <option value="TPG">TPG</option>
-    <option value="TKG">JKN</option>
-    <option value="Tamsil">TKD</option>
-  </select>
+    <!-- FILTER + ACTION BUTTONS -->
+    <div class="filters" style="justify-content:center; gap:10px; flex-wrap:wrap;">
 
-  <span>Triwulan</span>
-  <select id="triwulanFilter">
-    <option value="ALL">Semua</option>
-    <option value="1">Triwulan I</option>
-    <option value="2">Triwulan II</option>
-    <option value="3">Triwulan III</option>
-    <option value="4">Triwulan IV</option>
-  </select>
+        <select id="jenisFilter">
+            <option value="ALL">Semua</option>
+            <option value="TPG">TPG</option>
+            <option value="TKG">TKG</option>
+            <option value="Tamsil">Tamsil</option>
+        </select>
 
-  <span>Tahun</span>
-  <select id="tahunFilter">
-    <option value="2025">2025</option>
-    <option value="2026">2026</option>
-    <option value="2027">2027</option>
-  </select>
+        <select id="triwulanFilter">
+            <option value="ALL">Semua Triwulan</option>
+            <option value="1">Triwulan I</option>
+            <option value="2">Triwulan II</option>
+            <option value="3">Triwulan III</option>
+            <option value="4">Triwulan IV</option>
+        </select>
 
-<div class="top-buttons">
-<button class="btn-tampil" onclick="loadData()">Tampilkan</button>
-  <button class="btn-input" onclick="location.href='input.html'">Input Data</button>
-  <button class="btn-pagu" onclick="location.href='inputpagu.html'">Input Pagu</button>
-  
-</div>
+        <select id="tahunFilter">
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+        </select>
 
+        <!-- Tombol Sejajar -->
+        <button class="btn btn-primary" onclick="loadData()">Tampilkan</button>
+        <button class="btn btn-secondary" onclick="location.href='input.html'">Input Data</button>
+        <button class="btn btn-warning" onclick="location.href='inputpagu.html'">Input Pagu</button>
+        <button class="btn btn-danger" onclick="location.href='logout.html'">Logout</button>
+    </div>
 </div>
 
 <div class="table-wrapper">
-  <table id="tabelData">
+<table id="tabelData">
     <thead>
-      <tr>
-        <th>Jenis</th>
-        <th>Nomor SP2D</th>
-        <th>Tanggal SP2D</th>
-        <th>Bruto</th>
-        <th>PPh</th>
-        <th>JKN</th>
-        <th>Jml Penerima</th>
-        <th>Detil Penerima</th>
-      </tr>
+        <tr>
+            <th>Jenis</th>
+            <th>No SP2D</th>
+            <th>Tanggal</th>
+            <th>Bruto</th>
+            <th>PPh</th>
+            <th>JKN</th>
+            <th>Penerima</th>
+            <th>Detail</th>
+        </tr>
     </thead>
-    <tbody>
-      <tr><td colspan="7">Memuat data...</td></tr>
-    </tbody>
+    <tbody><tr><td colspan="8">Memuat...</td></tr></tbody>
+
     <tfoot>
-      <tr>
-        <td colspan="3">TOTAL</td>
-        <td id="sumBruto">0</td>
-        <td id="sumPPh">0</td>
-        <td id="sumJkn">0</td>
-        <td id="sumJml">0</td>
-        <td>-</td>
-      </tr>
+        <tr>
+            <td colspan="3">TOTAL</td>
+            <td id="sumBrutoCell">0</td>
+            <td id="sumPPhCell">0</td>
+            <td id="sumJknCell">0</td>
+            <td id="sumJmlCell">0</td>
+            <td>-</td>
+        </tr>
     </tfoot>
-  </table>
+</table>
 </div>
 
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
-
-/* FORMAT TANGGAL */
-function formatTanggalIndo(tglString){
-  if(!tglString) return "-";
-
-  const tgl = new Date(tglString);
-  if(isNaN(tgl.getTime())) return tglString;
-
-  const bulan = [
-    "Januari","Februari","Maret","April","Mei","Juni",
-    "Juli","Agustus","September","Oktober","November","Desember"
-  ];
-
-  return `${tgl.getDate()} ${bulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
-}
-
-/* PARSING UNTUK FILTER */
-function parseTanggal(tgl){
-  if(!tgl) return null;
-
-  const iso = new Date(tgl);
-  if(!isNaN(iso.getTime())){
-    return { d: iso.getDate(), m: iso.getMonth()+1, y: iso.getFullYear() };
-  }
-
-  const bulanIndo = {
-    Januari:1, Februari:2, Maret:3, April:4, Mei:5, Juni:6,
-    Juli:7, Agustus:8, September:9, Oktober:10, November:11, Desember:12
-  };
-
-  const parts = tgl.split(" ");
-  if(parts.length>=3){
-    const d = Number(parts[0]);
-    const m = bulanIndo[parts[1]];
-    const y = Number(parts[2]);
-    if(!isNaN(d) && m && !isNaN(y)){
-      return { d,m,y };
-    }
-  }
-  return null;
-}
-
-function getTriwulanRange(triwulan, tahun){
-  return {
-    "1": { start:{d:1,m:1,y:tahun},  end:{d:31,m:3,y:tahun }},
-    "2": { start:{d:1,m:4,y:tahun},  end:{d:30,m:6,y:tahun }},
-    "3": { start:{d:1,m:7,y:tahun},  end:{d:30,m:9,y:tahun }},
-    "4": { start:{d:1,m:10,y:tahun}, end:{d:31,m:12,y:tahun }},
-  }[triwulan];
-}
-
-/* LOAD DATA */
-async function loadData(){
-  const jenis = document.getElementById("jenisFilter").value;
-  const tri = document.getElementById("triwulanFilter").value;
-  const tahun = parseInt(document.getElementById("tahunFilter").value);
-
-  document.querySelector("#tabelData tbody").innerHTML =
-    `<tr><td colspan="7">Mengambil data...</td></tr>`;
-
-  try {
-    const res = await fetch(API_URL);
-    const raw = await res.json();
-
-    let hasil = raw;
-
-    if(jenis !== "ALL"){
-      hasil = hasil.filter(r => r["Jenis"] === jenis);
-    }
-
-    if(tri !== "ALL"){
-      const range = getTriwulanRange(tri, tahun);
-
-      hasil = hasil.filter(row => {
-        const t = parseTanggal(row["Tanggal SP2D"]);
-        if(!t) return false;
-
-        const val = t.y*10000 + t.m*100 + t.d;
-        const start = range.start.y*10000 + range.start.m*100 + range.start.d;
-        const end   = range.end.y*10000 + range.end.m*100 + range.end.d;
-
-        return val >= start && val <= end;
-      });
-    }
-
-    const tbody = document.querySelector("#tabelData tbody");
-    tbody.innerHTML = "";
-
-    if(hasil.length === 0){
-      tbody.innerHTML = `<tr><td colspan="7">Tidak ada data.</td></tr>`;
-      return;
-    }
-
-    let sumBruto = 0, sumPPh = 0, sumJkn = 0, sumJml = 0;
-
-    hasil.forEach(row => {
-      const bruto = Number(row["Bruto"]) || 0;
-      const pph   = Number(row["PPh"]) || 0;
-      const jkn   = Number(row["Jkn"]) || 0;
-      const jml   = Number(row["Jml"]) || 0;
-
-      sumBruto += bruto;
-      sumPPh   += pph;
-      sumJkn   += jkn;
-      sumJml   += jml;
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${row["Jenis"]}</td>
-          <td>${row["Nomor SP2D"]}</td>
-          <td>${formatTanggalIndo(row["Tanggal SP2D"])}</td>
-          <td>${bruto.toLocaleString("id-ID")}</td>
-          <td>${pph.toLocaleString("id-ID")}</td>
-          <td>${jkn.toLocaleString("id-ID")}</td>
-          <td>${jml.toLocaleString("id-ID")}</td>
-          <td><a href="${row["Link Drive Penerima"]}" target="_blank">Cek Data</a></td>
-        </tr>
-      `;
-    });
-
-    document.getElementById("sumBruto").textContent = sumBruto.toLocaleString("id-ID");
-    document.getElementById("sumPPh").textContent = sumPPh.toLocaleString("id-ID");
-    document.getElementById("sumJkn").textContent = sumJkn.toLocaleString("id-ID");
-    document.getElementById("sumJml").textContent = sumJml.toLocaleString("id-ID");
-
-  } catch(e){
-    console.error(e);
-    document.querySelector("#tabelData tbody").innerHTML =
-      `<tr><td colspan="7" style="color:red;">Gagal memuat data.</td></tr>`;
-  }
-}
-
-window.onload = function(){
-  document.getElementById("triwulanFilter").value = "ALL";
-  loadData();
-}
-</script>
+<script src="rincian_core.js"></script>
 
 </body>
 </html>
