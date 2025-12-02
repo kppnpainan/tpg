@@ -144,6 +144,7 @@
             <th>Jenis</th>
             <th>Pagu</th>
             <th>Realisasi</th>
+            <th>Realisasi s.d.</th>
             <th>Penerima</th>
             <th>PPh</th>
             <th>JKN</th>
@@ -183,7 +184,6 @@ let sheet2 = [];
 
 let barChart, pieChart, pphChart;
 
-/* SHOW / HIDE LOADING */
 function showLoading(){ document.getElementById("loadingBox").style.display = "block"; }
 function hideLoading(){ document.getElementById("loadingBox").style.display = "none"; }
 
@@ -229,39 +229,35 @@ function parseTanggal(t){
     return new Date(t);
 }
 
-/* FILTER PROCESS */
+/* APPLY FILTER */
 function applyFilter(){
-    showLoading();
-
     const jenis = document.getElementById("filterJenis").value;
     const tahun = document.getElementById("filterTh").value;
     const tw = document.getElementById("filterTw").value;
 
-    let data = sheet1;
-
-    data = data.filter(d => {
+    let data = sheet1.filter(d=>{
         let tgl = parseTanggal(d["Tanggal SP2D"]);
         return String(tgl.getFullYear()) === tahun;
     });
 
-    if (jenis !== "Semua")
+    if(jenis !== "Semua")
         data = data.filter(d => d.Jenis === jenis);
 
-    if (tw !== "Semua")
-        data = data.filter(d => String(d.triwulan) === String(tw));
+    if(tw !== "Semua")
+        data = data.filter(d => String(d.triwulan) === tw);
 
     renderTable(data);
     renderCharts(data);
-
-    hideLoading();
 }
 
-/* RENDER TABLE */
+/* RENDER TABLE WITH AKUMULASI */
 function renderTable(data){
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = "";
 
     const tahun = document.getElementById("filterTh").value;
+    const twFilter = document.getElementById("filterTw").value;
+
     let paguRow = sheet2.find(r => String(r.Tahun) === tahun) || {};
 
     let pagu = {
@@ -270,36 +266,61 @@ function renderTable(data){
         Tamsil: Number(paguRow["Pagu Tamsil"] || 0),
     };
 
-    let realisasi = { TPG:0, TKG:0, Tamsil:0 };
-    let penerima = { TPG:0, TKG:0, Tamsil:0 };
-    let pph = { TPG:0, TKG:0, Tamsil:0 };
-    let jkn = { TPG:0, TKG:0, Tamsil:0 };
+    let realTw = {
+        TPG:{1:0,2:0,3:0,4:0},
+        TKG:{1:0,2:0,3:0,4:0},
+        Tamsil:{1:0,2:0,3:0,4:0}
+    };
+
+    sheet1.forEach(d=>{
+        let tgl = parseTanggal(d["Tanggal SP2D"]);
+        if(String(tgl.getFullYear()) !== tahun) return;
+
+        let tw = Number(d.triwulan);
+        let bruto = Number(String(d.Bruto).replace(/\D/g,"")) || 0;
+
+        if(tw>=1 && tw<=4)
+            realTw[d.Jenis][tw] += bruto;
+    });
+
+    let realSd = {TPG:0, TKG:0, Tamsil:0};
+    let maxTw = twFilter === "Semua" ? 4 : Number(twFilter);
+
+    ["TPG","TKG","Tamsil"].forEach(j=>{
+        for(let i=1;i<=maxTw;i++){
+            realSd[j] += realTw[j][i];
+        }
+    });
+
+    let realisasi = {TPG:0, TKG:0, Tamsil:0};
+    let penerima = {TPG:0, TKG:0, Tamsil:0};
+    let pph = {TPG:0, TKG:0, Tamsil:0};
+    let jkn = {TPG:0, TKG:0, Tamsil:0};
 
     data.forEach(d=>{
         let bruto = Number(String(d.Bruto).replace(/\D/g,"")) || 0;
-        let jml = Number(d.Jml) || 0;
-        let potPPh = Number(String(d.PPh).replace(/\D/g,"")) || 0;
-        let potJkn = Number(String(d.Jkn).replace(/\D/g,"")) || 0;
-
         realisasi[d.Jenis] += bruto;
-        penerima[d.Jenis] += jml;
-        pph[d.Jenis] += potPPh;
-        jkn[d.Jenis] += potJkn;
+
+        penerima[d.Jenis] += Number(d.Jml) || 0;
+        pph[d.Jenis] += Number(String(d.PPh).replace(/\D/g,"")) || 0;
+        jkn[d.Jenis] += Number(String(d.Jkn).replace(/\D/g,"")) || 0;
     });
 
     ["TPG","TKG","Tamsil"].forEach(j=>{
-        let pg = pagu[j] || 0;
+        let pg = pagu[j];
         let rl = realisasi[j];
+        let rlSdVal = realSd[j];
         let jml = penerima[j];
         let pot1 = pph[j];
         let pot2 = jkn[j];
-        let persen = pg>0 ? ((rl/pg)*100).toFixed(1)+"%" : "-";
+        let persen = pg>0 ? ((rlSdVal/pg)*100).toFixed(1)+"%" : "-";
 
         tbody.innerHTML += `
             <tr>
                 <td>${j}</td>
                 <td>${pg.toLocaleString()}</td>
                 <td>${rl.toLocaleString()}</td>
+                <td>${rlSdVal.toLocaleString()}</td>
                 <td>${jml.toLocaleString()}</td>
                 <td>${pot1.toLocaleString()}</td>
                 <td>${pot2.toLocaleString()}</td>
@@ -309,23 +330,55 @@ function renderTable(data){
     });
 }
 
-/* RENDER CHARTS */
+/* GRAFIK — REALISASI DIAMBIL DARI REALISASI S.D. TW */
 function renderCharts(data){
-    let real = {TPG:0, TKG:0, Tamsil:0};
-    let count = {TPG:0, TKG:0, Tamsil:0};
+    const tahun = document.getElementById("filterTh").value;
+    const twFilter = document.getElementById("filterTw").value;
+
+    let realTw = {
+        TPG:{1:0,2:0,3:0,4:0},
+        TKG:{1:0,2:0,3:0,4:0},
+        Tamsil:{1:0,2:0,3:0,4:0}
+    };
+
+    sheet1.forEach(d=>{
+        let tgl = parseTanggal(d["Tanggal SP2D"]);
+        if(String(tgl.getFullYear()) !== tahun) return;
+
+        let tw = Number(d.triwulan);
+        let bruto = Number(String(d.Bruto).replace(/\D/g,"")) || 0;
+
+        if(tw>=1 && tw<=4){
+            realTw[d.Jenis][tw] += bruto;
+        }
+    });
+
+    let maxTw = twFilter === "Semua" ? 4 : Number(twFilter);
+    let realSd = {TPG:0, TKG:0, Tamsil:0};
+
+    ["TPG","TKG","Tamsil"].forEach(j=>{
+        for(let i=1;i<=maxTw;i++){
+            realSd[j] += realTw[j][i];
+        }
+    });
+
+    let penerima = {TPG:0, TKG:0, Tamsil:0};
     let pph = {TPG:0, TKG:0, Tamsil:0};
     let jkn = {TPG:0, TKG:0, Tamsil:0};
 
-    data.forEach(d=>{
-        real[d.Jenis] += Number(String(d.Bruto).replace(/\D/g,"")) || 0;
-        count[d.Jenis] += Number(d.Jml) || 0;
+    sheet1.forEach(d=>{
+        let tgl = parseTanggal(d["Tanggal SP2D"]);
+        if(String(tgl.getFullYear()) !== tahun) return;
+
+        let tw = Number(d.triwulan);
+        if(tw > maxTw) return;
+
+        penerima[d.Jenis] += Number(d.Jml) || 0;
         pph[d.Jenis] += Number(String(d.PPh).replace(/\D/g,"")) || 0;
         jkn[d.Jenis] += Number(String(d.Jkn).replace(/\D/g,"")) || 0;
     });
 
-    const tahun = document.getElementById("filterTh").value;
     let paguRow = sheet2.find(r => String(r.Tahun) === tahun) || {};
-
     let pagu = [
         Number(paguRow["Pagu TPG"] || 0),
         Number(paguRow["Pagu TKG"] || 0),
@@ -339,7 +392,7 @@ function renderCharts(data){
             labels:["TPG","TKG","Tamsil"],
             datasets:[
                 { label:"Pagu", data:pagu, backgroundColor:"#8ecae6" },
-                { label:"Realisasi", data:[real.TPG,real.TKG,real.Tamsil], backgroundColor:"#1d3557" }
+                { label:"Realisasi s.d. TW", data:[realSd.TPG,realSd.TKG,realSd.Tamsil], backgroundColor:"#1d3557" }
             ]
         }
     });
@@ -350,7 +403,7 @@ function renderCharts(data){
         data:{
             labels:["TPG","TKG","Tamsil"],
             datasets:[
-                { data:[count.TPG,count.TKG,count.Tamsil],
+                { data:[penerima.TPG,penerima.TKG,penerima.Tamsil],
                   backgroundColor:["#1d3557","#457b9d","#a8dadc"] }
             ]
         }
@@ -362,7 +415,7 @@ function renderCharts(data){
         data:{
             labels:["TPG","TKG","Tamsil"],
             datasets:[
-                { label:"Realisasi", data:[real.TPG,real.TKG,real.Tamsil], backgroundColor:"#1d3557" },
+                { label:"Realisasi s.d. TW", data:[realSd.TPG,realSd.TKG,realSd.Tamsil], backgroundColor:"#1d3557" },
                 { label:"PPh", data:[pph.TPG,pph.TKG,pph.Tamsil], backgroundColor:"#e76f51" },
                 { label:"JKN", data:[jkn.TPG,jkn.TKG,jkn.Tamsil], backgroundColor:"#2a9d8f" }
             ]

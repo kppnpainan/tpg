@@ -5,6 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login – KPPN Painan</title>
 <link rel="stylesheet" href="style.css">
+
+<style>
+/* Spinner */
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #1d3557;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
 </head>
 
 <body>
@@ -18,12 +39,24 @@
     <input type="text" id="user" placeholder="User" class="input" style="width:93%; padding:12px; margin-bottom:12px;">
     <input type="password" id="pass" placeholder="Password" class="input" style="width:93%; padding:12px; margin-bottom:12px;">
 
-    <button class="btn btn-primary" style="width:100%;" onclick="login()">Masuk</button>
+    <button id="btnLogin" class="btn btn-primary" style="width:100%;" onclick="login()">Masuk</button>
     <button class="btn btn-back" style="width:100%; margin-top:10px;" onclick="location.href='index.html'">Kembali</button>
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbyyFbErL99uPMOI4-ps8Q3ZAWetJ-W3tPyQSzvYeuioeJqAbsYmKCLdrwzgbJuqQ0gpwA/exec";
+
+function setLoading(state){
+    const btn = document.getElementById("btnLogin");
+
+    if(state){
+        btn.disabled = true;
+        btn.innerHTML = `<span class="loader"></span> Sedang divalidasi...`;
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = "Masuk";
+    }
+}
 
 async function login(){
     const u = document.getElementById("user").value.trim();
@@ -34,6 +67,8 @@ async function login(){
         return;
     }
 
+    setLoading(true); // tampilkan loading
+
     try {
         const url = `${API}?mode=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
         const res = await fetch(url);
@@ -41,6 +76,7 @@ async function login(){
 
         if(data.status !== "ok"){
             showErr("User atau password salah!");
+            setLoading(false);
             return;
         }
 
@@ -58,6 +94,7 @@ async function login(){
     } catch (e){
         console.error("ERROR LOGIN:", e);
         showErr("Gagal terhubung ke server login!");
+        setLoading(false);
     }
 }
 
