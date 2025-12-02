@@ -105,6 +105,14 @@ label {
         <option value="Tamsil">Tamsil</option>
     </select>
 
+    <label>Triwulan</label>
+    <select id="triwulan">
+        <option value="1">Triwulan 1</option>
+        <option value="2">Triwulan 2</option>
+        <option value="3">Triwulan 3</option>
+        <option value="4">Triwulan 4</option>
+    </select>
+
     <label>Nomor SP2D</label>
     <input type="text" id="nomorSp2d" placeholder="Masukkan nomor SP2D">
 
@@ -133,10 +141,11 @@ label {
 
 <script>
 function kirimData() {
-    const url = "https://script.google.com/macros/s/AKfycbz5bt9vf52TdRlJn0d7YtbWAitNb660YRxE86uDIAqoiVeqPx3HKfgsfZN55CpiKdFSwg/exec";
+    const url = "https://script.google.com/macros/s/AKfycbz-nf6nWZ2y5GOXKFG5Ja9g60Wf2vB4OYBS3rrdw9zrCa5m1_Ajb_P-0A-owQVaExpJ_g/exec";
 
     const data = {
         jenis: document.getElementById("jenis").value,
+        triwulan: document.getElementById("triwulan").value,
         nomorSp2d: document.getElementById("nomorSp2d").value.trim(),
         tanggalSp2d: document.getElementById("tanggalSp2d").value,
         bruto: document.getElementById("bruto").value,

@@ -47,7 +47,7 @@ if(sessionStorage.getItem("role") !== "Admin"){
             <option value="2026">2026</option>
         </select>
 
-        <!-- Tombol Sejajar -->
+        <!-- Tombol Aksi -->
         <button class="btn btn-primary" onclick="loadData()">Tampilkan</button>
         <button class="btn btn-secondary" onclick="location.href='input.html'">Input Data</button>
         <button class="btn btn-warning" onclick="location.href='inputPagu.html'">Input Pagu</button>
@@ -60,6 +60,7 @@ if(sessionStorage.getItem("role") !== "Admin"){
     <thead>
         <tr>
             <th>Jenis</th>
+            <th>Triwulan</th> <!-- Ditambahkan agar sama dengan rincian.html -->
             <th>No SP2D</th>
             <th>Tanggal</th>
             <th>Bruto</th>
@@ -69,11 +70,14 @@ if(sessionStorage.getItem("role") !== "Admin"){
             <th>Detail</th>
         </tr>
     </thead>
-    <tbody><tr><td colspan="8">Memuat...</td></tr></tbody>
+
+    <tbody>
+        <tr><td colspan="9">Memuat...</td></tr>
+    </tbody>
 
     <tfoot>
         <tr>
-            <td colspan="3">TOTAL</td>
+            <td colspan="4">TOTAL</td>
             <td id="sumBrutoCell">0</td>
             <td id="sumPPhCell">0</td>
             <td id="sumJknCell">0</td>

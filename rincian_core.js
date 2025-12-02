@@ -1,129 +1,154 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
+// ============================
+// URL Google Apps Script
+// ============================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
 
-/* ===============================
-   PARSER TANGGAL KHUSUS INDONESIA
-   =============================== */
+// Elemen tabel
+const tbody = document.querySelector("#tabelData tbody");
+const sumBrutoCell = document.getElementById("sumBrutoCell");
+const sumPPhCell = document.getElementById("sumPPhCell");
+const sumJknCell = document.getElementById("sumJknCell");
+const sumJmlCell = document.getElementById("sumJmlCell");
 
-function parseTanggal(tgl) {
-    if (!tgl) return null;
+// ============================
+// TAMPILKAN INFORMASI LOADING
+// ============================
+function showLoading() {
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="9" style="text-align:center; padding:15px; color:#555;">
+                ⏳ Sedang memuat data...
+            </td>
+        </tr>
+    `;
 
-    // Jika format ISO → langsung return
-    if (tgl.includes("T") || tgl.includes("-")) {
-        return new Date(tgl);
-    }
-
-    // Jika format: "25 Maret 2025"
-    const bulanIndo = {
-        Januari: 0, Februari: 1, Maret: 2, April: 3, Mei: 4, Juni: 5,
-        Juli: 6, Agustus: 7, September: 8, Oktober: 9, November: 10, Desember: 11
-    };
-
-    const bagian = tgl.split(" ");
-    if (bagian.length === 3) {
-        const tanggal = parseInt(bagian[0]);
-        const bulan = bulanIndo[bagian[1]];
-        const tahun = parseInt(bagian[2]);
-        if (bulan !== undefined) return new Date(tahun, bulan, tanggal);
-    }
-
-    return null;
+    // Reset total
+    sumBrutoCell.textContent = "0";
+    sumPPhCell.textContent = "0";
+    sumJknCell.textContent = "0";
+    sumJmlCell.textContent = "0";
 }
 
-function formatTanggalIndo(tgl) {
-    const date = parseTanggal(tgl);
-    if (!date) return tgl;
+// ============================
+// LOAD DATA DARI APPS SCRIPT
+// ============================
+async function loadData() {
 
-    const bulan = ["Januari","Februari","Maret","April","Mei","Juni",
-                   "Juli","Agustus","September","Oktober","November","Desember"];
-    return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+    // tampilkan loading
+    showLoading();
+
+    const jenis = document.getElementById("jenisFilter").value;
+    const triwulan = document.getElementById("triwulanFilter").value;
+    const tahun = document.getElementById("tahunFilter").value;
+
+    const url = `${SCRIPT_URL}?action=getRincian&jenis=${jenis}&triwulan=${triwulan}&tahun=${tahun}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Gagal mengambil data!");
+
+        const data = await response.json();
+        renderTable(data);
+
+    } catch (err) {
+        tbody.innerHTML = `
+            <tr><td colspan="9" style="text-align:center; color:red;">
+                ❌ Terjadi kesalahan saat memuat data!
+            </td></tr>
+        `;
+        console.error(err);
+    }
 }
 
-/* ===============================
-             LOAD DATA
-   =============================== */
+// ============================
+// RENDER TABEL
+// ============================
+function renderTable(data) {
 
-async function loadData(){
-    const jenis = jenisFilter.value;
-    const tri = triwulanFilter.value;
-    const tahun = tahunFilter.value;
-
-    const tbody = document.querySelector("#tabelData tbody");
-    tbody.innerHTML = `<tr><td colspan="8">Memuat data...</td></tr>`;
-
-    const res = await fetch(API_URL + "?mode=sheet1");
-    let data = await res.json();
-
-    /* ===============================
-       FILTER TAHUN
-       =============================== */
-    data = data.filter(r => {
-        const d = parseTanggal(r["Tanggal SP2D"]);
-        return d && d.getFullYear() == tahun;
-    });
-
-    /* ===============================
-       FILTER JENIS
-       =============================== */
-    if (jenis !== "ALL") {
-        data = data.filter(r => r.Jenis == jenis);
-    }
-
-    /* ===============================
-       FILTER TRIWULAN
-       =============================== */
-    if (tri !== "ALL") {
-        data = data.filter(r => {
-            const d = parseTanggal(r["Tanggal SP2D"]);
-            const bulan = d.getMonth() + 1;
-            return Math.ceil(bulan / 3) == tri;
-        });
-    }
-
-    tbody.innerHTML = "";
-
-    if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8">Tidak ada data untuk filter ini</td></tr>`;
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="9" style="text-align:center;">Tidak ada data ditemukan.</td></tr>
+        `;
         return;
     }
 
-    /* ===============================
-       MENAMPILKAN DATA
-       =============================== */
+    let html = "";
+    let sumBruto = 0, sumPPh = 0, sumJkn = 0, sumJml = 0;
 
-    let totalBruto = 0, totalPPh = 0, totalJkn = 0, totalJml = 0;
+    data.forEach((row, i) => {
 
-    data.forEach(r => {
-        const bruto = Number(r.Bruto || 0);
-        const pph = Number(r.PPh || 0);
-        const jkn = Number(r.Jkn || 0);
-        const jml = Number(r.Jml || 0);
+        const tanggal = row["Tanggal SP2D"]
+            ? new Date(row["Tanggal SP2D"]).toLocaleDateString("id-ID")
+            : "";
 
-        totalBruto += bruto;
-        totalPPh += pph;
-        totalJkn += jkn;
-        totalJml += jml;
+        html += `
+            <tr>
+                <td>${row.Jenis || ""}</td>
+                <td>${row.triwulan || ""}</td>
+                <td>${row["Nomor SP2D"] || ""}</td>
+                <td>${tanggal}</td>
+                <td>${formatNumber(row.Bruto)}</td>
+                <td>${formatNumber(row.PPh)}</td>
+                <td>${formatNumber(row.Jkn)}</td>
+                <td>${row.Jml || "-"}</td>
+                <td><button class="btn btn-detail" onclick="openDetail('${row.Jenis}','${row.Triwulan}','${row["Nomor SP2D"]}')">Detail</button></td>
+            </tr>
+        `;
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${r.Jenis}</td>
-            <td>${r["Nomor SP2D"]}</td>
-            <td>${formatTanggalIndo(r["Tanggal SP2D"])}</td>
-            <td>${bruto.toLocaleString("id-ID")}</td>
-            <td>${pph.toLocaleString("id-ID")}</td>
-            <td>${jkn.toLocaleString("id-ID")}</td>
-            <td>${jml.toLocaleString("id-ID")}</td>
-            <td><a href="${r["Link Drive Penerima"]}" target="_blank">Detail</a></td>
-        </tr>`;
+        sumBruto += row.Bruto || 0;
+        sumPPh += row.PPh || 0;
+        sumJkn += row.Jkn || 0;
+        sumJml += row.Jml || 0;
     });
 
-    /* ===============================
-       TAMPILKAN TOTAL
-       =============================== */
+    tbody.innerHTML = html;
 
-    document.getElementById("sumBrutoCell").innerHTML = totalBruto.toLocaleString("id-ID");
-    document.getElementById("sumPPhCell").innerHTML = totalPPh.toLocaleString("id-ID");
-    document.getElementById("sumJknCell").innerHTML = totalJkn.toLocaleString("id-ID");
-    document.getElementById("sumJmlCell").innerHTML = totalJml.toLocaleString("id-ID");
+    sumBrutoCell.textContent = formatNumber(sumBruto);
+    sumPPhCell.textContent = formatNumber(sumPPh);
+    sumJknCell.textContent = formatNumber(sumJkn);
+    sumJmlCell.textContent = sumJml;
 }
 
-window.onload = loadData;
+// ============================
+// FORMAT ANGKA
+// ============================
+function formatNumber(num) {
+    if (!num) return "0";
+    return num.toLocaleString("id-ID");
+}
+
+// ============================
+// BUKA DETAIL
+// ============================
+function openDetail(jenis, triwulan, sp2d) {
+    sessionStorage.setItem("d_jenis", jenis);
+    sessionStorage.setItem("d_triwulan", triwulan);
+    sessionStorage.setItem("d_sp2d", sp2d);
+    location.href = "detail.html";
+}
+
+// ============================
+// LOAD AWAL SAAT HALAMAN DIBUKA
+// ============================
+window.onload = () => {
+    showLoading();   // tampilkan loading dulu
+    setTimeout(loadData, 300);  // beri delay sedikit agar loading terlihat
+};
+
+// ============================
+// EVENT: FILTER OTOMATIS LOAD
+// ============================
+document.getElementById("tahunFilter").addEventListener("change", () => {
+    showLoading();
+    loadData();
+});
+
+document.getElementById("jenisFilter").addEventListener("change", () => {
+    showLoading();
+    loadData();
+});
+
+document.getElementById("triwulanFilter").addEventListener("change", () => {
+    showLoading();
+    loadData();
+});

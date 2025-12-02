@@ -20,8 +20,6 @@ if(sessionStorage.getItem("logged") !== "yes"){
 <div class="page-title">Rincian Penyaluran – Pengguna</div>
 
 <div class="card">
-
-    <!-- FILTER + Tombol Tersusun Rapi -->
     <div class="filters" style="justify-content:center; flex-wrap:wrap; gap:10px;">
 
         <select id="jenisFilter">
@@ -44,7 +42,6 @@ if(sessionStorage.getItem("logged") !== "yes"){
             <option value="2026">2026</option>
         </select>
 
-        <!-- Tombol Sejajar -->
         <button class="btn btn-primary" onclick="loadData()">Tampilkan</button>
         <button class="btn btn-danger" onclick="location.href='logout.html'">Logout</button>
     </div>
@@ -55,6 +52,7 @@ if(sessionStorage.getItem("logged") !== "yes"){
     <thead>
         <tr>
             <th>Jenis</th>
+            <th>Triwulan</th>  <!-- DITAMBAH -->
             <th>No SP2D</th>
             <th>Tanggal</th>
             <th>Bruto</th>
@@ -64,11 +62,11 @@ if(sessionStorage.getItem("logged") !== "yes"){
             <th>Detail</th>
         </tr>
     </thead>
-    <tbody><tr><td colspan="8">Memuat...</td></tr></tbody>
+    <tbody><tr><td colspan="9">Memuat...</td></tr></tbody>
 
     <tfoot>
         <tr>
-            <td colspan="3">TOTAL</td>
+            <td colspan="4">TOTAL</td>
             <td id="sumBrutoCell">0</td>
             <td id="sumPPhCell">0</td>
             <td id="sumJknCell">0</td>

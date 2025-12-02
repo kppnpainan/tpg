@@ -28,17 +28,28 @@
         gap:10px;
         justify-content:center;
         flex-wrap:wrap;
-        margin-bottom:20px;
+        margin-bottom:15px;
     }
     select{
         padding:8px 12px;
         border-radius:6px;
         border:1px solid #888;
     }
+
+    /* LOADING */
+    #loadingBox{
+        display:none;
+        text-align:center;
+        font-size:18px;
+        padding:12px;
+        margin-bottom:15px;
+        color:#444;
+    }
+
     table{
         width:100%;
         border-collapse:collapse;
-        margin-top:15px;
+        margin-top:10px;
         background:white;
         border-radius:8px;
         overflow:hidden;
@@ -123,6 +134,9 @@
     </select>
 </div>
 
+<!-- LOADING BOX -->
+<div id="loadingBox">⏳ Sedang memuat data...</div>
+
 <!-- TABLE -->
 <table>
     <thead>
@@ -130,7 +144,7 @@
             <th>Jenis</th>
             <th>Pagu</th>
             <th>Realisasi</th>
-            <th>Jumlah Penerima</th>
+            <th>Penerima</th>
             <th>PPh</th>
             <th>JKN</th>
             <th>Persentase</th>
@@ -140,7 +154,6 @@
 </table>
 
 <div class="charts-container">
-
     <div class="chartBox">
         <h3>Pagu vs Realisasi</h3>
         <canvas id="barChart"></canvas>
@@ -157,10 +170,10 @@
         <h3>Realisasi vs PPh vs JKN</h3>
         <canvas id="pphChart"></canvas>
     </div>
-
 </div>
 
 <button class="btn" onclick="gotoDetail()">Cek Detil Data</button>
+
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzBLUJwYz3AYMYOIvrQ0gJJXEU-sOsbHXSkgnDTBW34LTyBOY_UT9qt7WVBjJ7eChJ1Ug/exec";
@@ -170,11 +183,19 @@ let sheet2 = [];
 
 let barChart, pieChart, pphChart;
 
+/* SHOW / HIDE LOADING */
+function showLoading(){ document.getElementById("loadingBox").style.display = "block"; }
+function hideLoading(){ document.getElementById("loadingBox").style.display = "none"; }
+
+/* INITIAL LOAD */
 window.onload = async () => {
+    showLoading();
     await loadData();
     applyFilter();
+    hideLoading();
 };
 
+/* LOAD DATA FROM API */
 async function loadData(){
     try{
         const s1 = await fetch(API+"?mode=sheet1").then(r=>r.json());
@@ -188,8 +209,15 @@ async function loadData(){
     }
 }
 
+/* FILTER WHEN SELECT CHANGED */
 document.querySelectorAll("select").forEach(sel=>{
-    sel.addEventListener("change", applyFilter);
+    sel.addEventListener("change", () => {
+        showLoading();
+        setTimeout(() => {
+            applyFilter();
+            hideLoading();
+        }, 200);
+    });
 });
 
 function parseTanggal(t){
@@ -201,7 +229,10 @@ function parseTanggal(t){
     return new Date(t);
 }
 
+/* FILTER PROCESS */
 function applyFilter(){
+    showLoading();
+
     const jenis = document.getElementById("filterJenis").value;
     const tahun = document.getElementById("filterTh").value;
     const tw = document.getElementById("filterTw").value;
@@ -213,20 +244,19 @@ function applyFilter(){
         return String(tgl.getFullYear()) === tahun;
     });
 
-    if(jenis !== "Semua")
+    if (jenis !== "Semua")
         data = data.filter(d => d.Jenis === jenis);
 
-    if(tw !== "Semua"){
-        data = data.filter(d => {
-            let m = parseTanggal(d["Tanggal SP2D"]).getMonth()+1;
-            return Math.ceil(m/3) == tw;
-        });
-    }
+    if (tw !== "Semua")
+        data = data.filter(d => String(d.triwulan) === String(tw));
 
     renderTable(data);
     renderCharts(data);
+
+    hideLoading();
 }
 
+/* RENDER TABLE */
 function renderTable(data){
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = "";
@@ -279,6 +309,7 @@ function renderTable(data){
     });
 }
 
+/* RENDER CHARTS */
 function renderCharts(data){
     let real = {TPG:0, TKG:0, Tamsil:0};
     let count = {TPG:0, TKG:0, Tamsil:0};
