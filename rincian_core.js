@@ -1,7 +1,7 @@
 // ============================
 // URL Google Apps Script
 // ============================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztYcO3wuBGIkfcxKxApAFN572q6n-UuRAO15UN5ZbWmsBPbQdhPuhDYolE7yDq1By9qw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyURv5GxciH9nH9yEtVu7Z17MyWtpVAq2H4VnTKAklf76jPMAU3iPrwSCijMR_zGgPuMQ/exec";
 
 // Elemen tabel
 const tbody = document.querySelector("#tabelData tbody");
@@ -34,13 +34,15 @@ function showLoading() {
 // ============================
 async function loadData() {
 
-    // tampilkan loading
+    // 1. Tampilkan loading
     showLoading();
 
+    // 2. Ambil nilai filter terbaru
     const jenis = document.getElementById("jenisFilter").value;
     const triwulan = document.getElementById("triwulanFilter").value;
     const tahun = document.getElementById("tahunFilter").value;
 
+    // 3. Buat URL dengan parameter
     const url = `${SCRIPT_URL}?action=getRincian&jenis=${jenis}&triwulan=${triwulan}&tahun=${tahun}`;
 
     try {
@@ -81,17 +83,18 @@ function renderTable(data) {
             ? new Date(row["Tanggal SP2D"]).toLocaleDateString("id-ID")
             : "";
 
+        // Perhatian: Pastikan casing property cocok dengan data dari Apps Script!
         html += `
             <tr>
                 <td>${row.Jenis || ""}</td>
-                <td>${row.triwulan || ""}</td>
+                <td>${row.triwulan || ""}</td> 
                 <td>${row["Nomor SP2D"] || ""}</td>
                 <td>${tanggal}</td>
                 <td>${formatNumber(row.Bruto)}</td>
                 <td>${formatNumber(row.PPh)}</td>
                 <td>${formatNumber(row.Jkn)}</td>
                 <td>${row.Jml || "-"}</td>
-                <td><button class="btn btn-detail" onclick="openDetail('${row.Jenis}','${row.Triwulan}','${row["Nomor SP2D"]}')">Detail</button></td>
+                <td><button class="btn btn-detail" onclick="openDetail('${row.Jenis}','${row.triwulan}','${row["Nomor SP2D"]}')">Detail</button></td>
             </tr>
         `;
 
@@ -128,27 +131,16 @@ function openDetail(jenis, triwulan, sp2d) {
 }
 
 // ============================
-// LOAD AWAL SAAT HALAMAN DIBUKA
-// ============================
-window.onload = () => {
-    showLoading();   // tampilkan loading dulu
-    setTimeout(loadData, 300);  // beri delay sedikit agar loading terlihat
-};
-
-// ============================
 // EVENT: FILTER OTOMATIS LOAD
 // ============================
-document.getElementById("tahunFilter").addEventListener("change", () => {
-    showLoading();
-    loadData();
-});
+// Memastikan semua listener ditambahkan setelah DOM siap.
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // Tambahkan listener ke semua filter
+    document.getElementById("tahunFilter").addEventListener("change", loadData);
+    document.getElementById("jenisFilter").addEventListener("change", loadData);
+    document.getElementById("triwulanFilter").addEventListener("change", loadData);
 
-document.getElementById("jenisFilter").addEventListener("change", () => {
-    showLoading();
-    loadData();
-});
-
-document.getElementById("triwulanFilter").addEventListener("change", () => {
-    showLoading();
-    loadData();
+    // Load data awal setelah semua listener siap
+    loadData(); 
 });
