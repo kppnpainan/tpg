@@ -15,6 +15,25 @@
         padding:20px;
         color:#333;
     }
+
+    /* ===== HEADER LOGO (DITAMBAHKAN, AMAN) ===== */
+    .top-header{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-bottom:10px;
+    }
+    .logo-apotu{
+        height:55px;
+    }
+    .app-title{
+        font-size:20px;
+        font-weight:bold;
+        color:#1d3557;
+        line-height:1.2;
+    }
+    /* ========================================= */
+
     h2{
         text-align:center;
         background:#1d3557;
@@ -24,7 +43,6 @@
         margin-bottom:25px;
     }
 
-    /* FILTER + MODE: satu baris */
     .filters{
         display:flex;
         gap:12px;
@@ -34,7 +52,6 @@
         align-items:center;
     }
 
-    /* MODE BUTTON */
     .mode-buttons{
         display:flex;
         gap:10px;
@@ -53,7 +70,6 @@
         background:#e63946;
     }
 
-    /* FILTER SELECT */
     select{
         padding:9px 12px;
         border-radius:6px;
@@ -105,6 +121,12 @@
         .charts-container{
             grid-template-columns: 1fr;
         }
+        .app-title{
+            font-size:16px;
+        }
+        .logo-apotu{
+            height:45px;
+        }
     }
 
     .chartBox{
@@ -137,18 +159,23 @@
 
 <body>
 
+<!-- ===== HEADER LOGO (DITAMBAHKAN) ===== -->
+<div class="top-header">
+    <img src="apotu.png" class="logo-apotu" alt="Logo APOTU">
+    <div class="app-title">
+        Aplikasi<br>Tunjangan Guru KPPN Painan
+    </div>
+</div>
+<!-- =================================== -->
+
 <h2>Penyaluran TPG, TKG dan Tamsil lingkup KPPN Painan</h2>
 
-<!-- FILTER + MODE DALAM SATU BARIS -->
 <div class="filters">
-
-    <!-- MODE BUTTONS -->
     <div class="mode-buttons">
         <button class="mode-btn active" id="btnTriwulan">Per Triwulan</button>
         <button class="mode-btn" id="btnAkumulasi">Akumulasi</button>
     </div>
 
-    <!-- FILTER SELECT -->
     <select id="filterJenis">
         <option value="Semua">Semua Jns</option>
         <option value="TPG">TPG</option>
@@ -171,20 +198,19 @@
 
 <div id="loadingBox">⏳ Sedang memuat data...</div>
 
-<!-- TABLE -->
 <table>
-    <thead>
-        <tr>
-            <th>Jenis</th>
-            <th>Pagu</th>
-            <th>Realisasi</th>
-            <th>Penerima</th>
-            <th>PPh</th>
-            <th>JKN</th>
-            <th>Persentase</th>
-        </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
+<thead>
+<tr>
+    <th>Jenis</th>
+    <th>Pagu</th>
+    <th>Realisasi</th>
+    <th>Penerima</th>
+    <th>PPh</th>
+    <th>JKN</th>
+    <th>Persentase</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
 </table>
 
 <div class="charts-container">
@@ -213,9 +239,7 @@ const API = "https://script.google.com/macros/s/AKfycbzBLUJwYz3AYMYOIvrQ0gJJXEU-
 
 let sheet1 = [];
 let sheet2 = [];
-
 let mode = "triwulan";
-
 let barChart, pieChart, pphChart;
 
 function showLoading(){ loadingBox.style.display = "block"; }
@@ -231,12 +255,10 @@ window.onload = async () => {
 async function loadData(){
     const s1 = await fetch(API+"?mode=sheet1").then(r=>r.json());
     const s2 = await fetch(API+"?mode=sheet2").then(r=>r.json());
-
     sheet1 = s1.data || [];
     sheet2 = s2.data || [];
 }
 
-/* MODE BUTTONS */
 btnTriwulan.onclick = () => {
     mode = "triwulan";
     updateModeUI();
@@ -247,6 +269,7 @@ btnAkumulasi.onclick = () => {
     updateModeUI();
     applyFilter();
 };
+
 function updateModeUI(){
     btnTriwulan.classList.remove("active");
     btnAkumulasi.classList.remove("active");
@@ -353,10 +376,10 @@ function renderCharts(data, tw, tahun){
         type:"pie",
         data:{
             labels:["TPG","TKG","Tamsil"],
-            datasets:[
-                {data:[penerima.TPG,penerima.TKG,penerima.Tamsil],
-                backgroundColor:["#1d3557","#457b9d","#a8dadc"]}
-            ]
+            datasets:[{
+                data:[penerima.TPG,penerima.TKG,penerima.Tamsil],
+                backgroundColor:["#1d3557","#457b9d","#a8dadc"]
+            }]
         }
     });
 
