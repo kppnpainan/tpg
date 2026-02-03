@@ -8,172 +8,157 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    body{
-        font-family: Calibri, Arial;
-        background:#eef2f7;
-        margin:0;
-        padding:20px;
-        color:#333;
-    }
+body{
+    font-family: Calibri, Arial;
+    background:#eef2f7;
+    margin:0;
+    padding:20px;
+    color:#333;
+}
 
-    /* ===== HEADER LOGO (DITAMBAHKAN, AMAN) ===== */
-    .top-header{
-        display:flex;
-        align-items:center;
-        gap:12px;
-        margin-bottom:10px;
-    }
-    .logo-apotu{
-        height:55px;
-    }
-    .app-title{
-        font-size:20px;
-        font-weight:bold;
-        color:#1d3557;
-        line-height:1.2;
-    }
-    /* ========================================= */
+/* HEADER */
+.top-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:10px;
+}
+.logo-apotu{
+    height:55px;
+}
+.app-title{
+    font-size:20px;
+    font-weight:bold;
+    color:#1d3557;
+    line-height:1.2;
+}
 
-    h2{
-        text-align:center;
-        background:#1d3557;
-        color:white;
-        padding:15px;
-        border-radius:8px;
-        margin-bottom:25px;
-    }
+h2{
+    text-align:center;
+    background:#1d3557;
+    color:white;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:25px;
+}
 
-    .filters{
-        display:flex;
-        gap:12px;
-        justify-content:center;
-        flex-wrap:wrap;
-        margin-bottom:15px;
-        align-items:center;
-    }
+/* FILTER */
+.filters{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+    align-items:center;
+}
 
-    .mode-buttons{
-        display:flex;
-        gap:10px;
-    }
-    .mode-btn{
-        padding:10px 18px;
-        border-radius:6px;
-        cursor:pointer;
-        border:none;
-        background:#1d3557;
-        color:white;
-        font-weight:bold;
-        transition:0.2s;
-    }
-    .mode-btn.active{
-        background:#e63946;
-    }
+.mode-buttons{
+    display:flex;
+    gap:10px;
+}
+.mode-btn{
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    border:none;
+    background:#1d3557;
+    color:white;
+    font-weight:bold;
+}
+.mode-btn.active{
+    background:#e63946;
+}
 
-    select{
-        padding:9px 12px;
-        border-radius:6px;
-        border:1px solid #888;
-        background:white;
-        min-width:120px;
-    }
+select{
+    padding:9px 12px;
+    border-radius:6px;
+    border:1px solid #888;
+    background:white;
+    min-width:120px;
+}
 
-    #loadingBox{
-        display:none;
-        text-align:center;
-        font-size:18px;
-        padding:12px;
-        margin-bottom:15px;
-        color:#444;
-    }
+#loadingBox{
+    display:none;
+    text-align:center;
+    font-size:18px;
+    padding:12px;
+    margin-bottom:15px;
+}
 
-    table{
-        width:100%;
-        border-collapse:collapse;
-        margin-top:10px;
-        background:white;
-        border-radius:8px;
-        overflow:hidden;
-    }
-    th,td{
-        padding:10px;
-        border-bottom:1px solid #ddd;
-        text-align:center;
-    }
-    th{
-        background:#457b9d;
-        color:white;
-    }
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    background:white;
+    border-radius:8px;
+    overflow:hidden;
+}
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+th{
+    background:#457b9d;
+    color:white;
+}
 
-    .charts-container{
-        display:grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap:20px;
-        margin-top:25px;
-    }
+/* CHART */
+.charts-container{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:20px;
+    margin-top:25px;
+}
+@media(max-width:1200px){
+    .charts-container{ grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width:768px){
+    .charts-container{ grid-template-columns: 1fr; }
+}
+.chartBox{
+    background:white;
+    padding:15px;
+    border-radius:8px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+.pie-wrapper{
+    width:220px;
+    margin:auto;
+}
 
-    @media(max-width:1200px){
-        .charts-container{
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media(max-width:768px){
-        .charts-container{
-            grid-template-columns: 1fr;
-        }
-        .app-title{
-            font-size:16px;
-        }
-        .logo-apotu{
-            height:45px;
-        }
-    }
-
-    .chartBox{
-        background:white;
-        padding:15px;
-        border-radius:8px;
-        text-align:center;
-        box-shadow:0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .pie-wrapper{
-        width:220px;
-        margin:auto;
-    }
-
-    .btn{
-        margin-top:25px;
-        display:block;
-        width:100%;
-        padding:12px;
-        background:#1d3557;
-        color:white;
-        border:none;
-        border-radius:8px;
-        font-size:18px;
-        cursor:pointer;
-    }
+.btn{
+    margin-top:25px;
+    display:block;
+    width:100%;
+    padding:12px;
+    background:#1d3557;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ===== HEADER LOGO (DITAMBAHKAN) ===== -->
 <div class="top-header">
-    <img src="apotu.png" class="logo-apotu" alt="Logo APOTU">
+    <img src="apotu.png" class="logo-apotu">
     <div class="app-title">
         Aplikasi<br>Potongan Tunjangan Guru KPPN Painan
     </div>
 </div>
-<!-- =================================== -->
 
 <h2>Penyaluran TPG, TKG dan Tamsil lingkup KPPN Painan</h2>
 
 <div class="filters">
     <div class="mode-buttons">
-        <button class="mode-btn active" id="btnTriwulan">Per Triwulan</button>
-        <button class="mode-btn" id="btnAkumulasi">Akumulasi</button>
+        <button class="mode-btn" id="btnTriwulan">Per Triwulan</button>
+        <button class="mode-btn active" id="btnAkumulasi">Akumulasi</button>
     </div>
 
     <select id="filterJenis">
@@ -218,14 +203,12 @@
         <h3>Pagu vs Realisasi</h3>
         <canvas id="barChart"></canvas>
     </div>
-
     <div class="chartBox">
         <h3>Penerima</h3>
         <div class="pie-wrapper">
             <canvas id="pieChart"></canvas>
         </div>
     </div>
-
     <div class="chartBox">
         <h3>Realisasi vs PPh vs JKN</h3>
         <canvas id="pphChart"></canvas>
@@ -237,35 +220,45 @@
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzBLUJwYz3AYMYOIvrQ0gJJXEU-sOsbHXSkgnDTBW34LTyBOY_UT9qt7WVBjJ7eChJ1Ug/exec";
 
-let sheet1 = [];
-let sheet2 = [];
-let mode = "triwulan";
+let sheet1=[], sheet2=[];
+let mode="akumulasi";
 let barChart, pieChart, pphChart;
 
-function showLoading(){ loadingBox.style.display = "block"; }
-function hideLoading(){ loadingBox.style.display = "none"; }
+function getCurrentTriwulan(){
+    const m = new Date().getMonth() + 1;
+    if(m<=3) return 1;
+    if(m<=6) return 2;
+    if(m<=9) return 3;
+    return 4;
+}
 
-window.onload = async () => {
+function showLoading(){ loadingBox.style.display="block"; }
+function hideLoading(){ loadingBox.style.display="none"; }
+
+window.onload = async ()=>{
     showLoading();
+
+    filterTw.value = getCurrentTriwulan();
+    updateModeUI();
+
     await loadData();
     applyFilter();
+
     hideLoading();
 };
 
 async function loadData(){
-    const s1 = await fetch(API+"?mode=sheet1").then(r=>r.json());
-    const s2 = await fetch(API+"?mode=sheet2").then(r=>r.json());
-    sheet1 = s1.data || [];
-    sheet2 = s2.data || [];
+    sheet1 = (await fetch(API+"?mode=sheet1").then(r=>r.json())).data || [];
+    sheet2 = (await fetch(API+"?mode=sheet2").then(r=>r.json())).data || [];
 }
 
-btnTriwulan.onclick = () => {
-    mode = "triwulan";
+btnTriwulan.onclick = ()=>{
+    mode="triwulan";
     updateModeUI();
     applyFilter();
 };
-btnAkumulasi.onclick = () => {
-    mode = "akumulasi";
+btnAkumulasi.onclick = ()=>{
+    mode="akumulasi";
     updateModeUI();
     applyFilter();
 };
@@ -276,11 +269,11 @@ function updateModeUI(){
     (mode==="triwulan"?btnTriwulan:btnAkumulasi).classList.add("active");
 }
 
-document.querySelectorAll("select").forEach(sel=>{
-    sel.addEventListener("change", ()=>{
+document.querySelectorAll("select").forEach(s=>{
+    s.onchange=()=>{
         showLoading();
         setTimeout(()=>{ applyFilter(); hideLoading(); },200);
-    });
+    };
 });
 
 function applyFilter(){
@@ -289,74 +282,66 @@ function applyFilter(){
     const tw = Number(filterTw.value);
 
     let list = sheet1.filter(r=>{
-        let tgl = new Date(r["Tanggal SP2D"]);
-        return String(tgl.getFullYear())===tahun;
+        return new Date(r["Tanggal SP2D"]).getFullYear() == tahun;
     });
 
-    if(jenis !== "Semua") list = list.filter(r=>r.Jenis===jenis);
+    if(jenis!=="Semua") list=list.filter(r=>r.Jenis===jenis);
 
-    let filtered = (mode==="triwulan")
+    let data = (mode==="triwulan")
         ? list.filter(r=>Number(r.triwulan)===tw)
         : list.filter(r=>Number(r.triwulan)<=tw);
 
-    renderTable(filtered, tw, tahun);
-    renderCharts(filtered, tw, tahun);
+    renderTable(data,tahun);
+    renderCharts(data,tahun);
 }
 
-function renderTable(data, tw, tahun){
-    tbody.innerHTML = "";
-
-    let paguRow = sheet2.find(r=>String(r.Tahun)===tahun) || {};
-    let pagu = {
-        TPG:Number(paguRow["Pagu TPG"]||0),
-        TKG:Number(paguRow["Pagu TKG"]||0),
-        Tamsil:Number(paguRow["Pagu Tamsil"]||0)
+function renderTable(data,tahun){
+    tbody.innerHTML="";
+    let p=sheet2.find(r=>String(r.Tahun)===tahun)||{};
+    let pagu={
+        TPG:Number(p["Pagu TPG"]||0),
+        TKG:Number(p["Pagu TKG"]||0),
+        Tamsil:Number(p["Pagu Tamsil"]||0)
     };
 
-    let real={TPG:0,TKG:0,Tamsil:0};
-    let penerima={TPG:0,TKG:0,Tamsil:0};
-    let pph={TPG:0,TKG:0,Tamsil:0};
-    let jkn={TPG:0,TKG:0,Tamsil:0};
+    let real={TPG:0,TKG:0,Tamsil:0},pener={TPG:0,TKG:0,Tamsil:0},pph={TPG:0,TKG:0,Tamsil:0},jkn={TPG:0,TKG:0,Tamsil:0};
 
     data.forEach(d=>{
         real[d.Jenis]+=Number(d.Bruto)||0;
-        penerima[d.Jenis]+=Number(d.Jml)||0;
+        pener[d.Jenis]+=Number(d.Jml)||0;
         pph[d.Jenis]+=Number(d.PPh)||0;
         jkn[d.Jenis]+=Number(d.Jkn)||0;
     });
 
     ["TPG","TKG","Tamsil"].forEach(j=>{
-        tbody.innerHTML += `
-            <tr>
-                <td>${j}</td>
-                <td>${pagu[j].toLocaleString()}</td>
-                <td>${real[j].toLocaleString()}</td>
-                <td>${penerima[j].toLocaleString()}</td>
-                <td>${pph[j].toLocaleString()}</td>
-                <td>${jkn[j].toLocaleString()}</td>
-                <td>${(pagu[j]?(real[j]/pagu[j]*100).toFixed(1):0)}%</td>
-            </tr>`;
+        tbody.innerHTML+=`
+        <tr>
+            <td>${j}</td>
+            <td>${pagu[j].toLocaleString()}</td>
+            <td>${real[j].toLocaleString()}</td>
+            <td>${pener[j].toLocaleString()}</td>
+            <td>${pph[j].toLocaleString()}</td>
+            <td>${jkn[j].toLocaleString()}</td>
+            <td>${pagu[j]?(real[j]/pagu[j]*100).toFixed(1):0}%</td>
+        </tr>`;
     });
 }
 
-function renderCharts(data, tw, tahun){
-    let sum={TPG:0,TKG:0,Tamsil:0};
-    let penerima={TPG:0,TKG:0,Tamsil:0};
-    let pph={TPG:0,TKG:0,Tamsil:0};
-    let jkn={TPG:0,TKG:0,Tamsil:0};
+function renderCharts(data,tahun){
+    let sum={TPG:0,TKG:0,Tamsil:0},pener={TPG:0,TKG:0,Tamsil:0},pph={TPG:0,TKG:0,Tamsil:0},jkn={TPG:0,TKG:0,Tamsil:0};
 
     data.forEach(d=>{
         sum[d.Jenis]+=Number(d.Bruto)||0;
-        penerima[d.Jenis]+=Number(d.Jml)||0;
+        pener[d.Jenis]+=Number(d.Jml)||0;
         pph[d.Jenis]+=Number(d.PPh)||0;
         jkn[d.Jenis]+=Number(d.Jkn)||0;
     });
 
-    let paguRow=sheet2.find(r=>String(r.Tahun)===tahun)||{};
+    let pg=sheet2.find(r=>String(r.Tahun)===tahun)||{};
     let pagu=[
-        Number(paguRow["Pagu TPG"]||0),
-        Number(paguRow["Pagu TKG"]||0),
-        Number(paguRow["Pagu Tamsil"]||0)
+        Number(pg["Pagu TPG"]||0),
+        Number(pg["Pagu TKG"]||0),
+        Number(pg["Pagu Tamsil"]||0)
     ];
 
     if(barChart) barChart.destroy();
@@ -377,7 +362,7 @@ function renderCharts(data, tw, tahun){
         data:{
             labels:["TPG","TKG","Tamsil"],
             datasets:[{
-                data:[penerima.TPG,penerima.TKG,penerima.Tamsil],
+                data:[pener.TPG,pener.TKG,pener.Tamsil],
                 backgroundColor:["#1d3557","#457b9d","#a8dadc"]
             }]
         }
@@ -404,5 +389,3 @@ function gotoDetail(){
 
 </body>
 </html>
-
-
