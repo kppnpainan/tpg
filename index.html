@@ -75,7 +75,7 @@
         /* Tombol Login */
         .btn-login-container { display: flex; justify-content: center; margin-top: 20px; }
         .btn-login { 
-            width: 100%; max-width: 2000px; padding: 15px; 
+            width: 100%; max-width: 1500px; padding: 15px; 
             background: var(--blue-header); color: white; border: none; 
             border-radius: 8px; cursor: pointer; font-weight: bold; 
             font-size: 15px; letter-spacing: 1px; transition: 0.3s;
@@ -118,14 +118,16 @@
 
     <select id="filterTw">
         <option value="1">Triwulan I</option>
-        <option value="2" selected>Triwulan II</option>
+        <option value="2">Triwulan II</option>
         <option value="3">Triwulan III</option>
         <option value="4">Triwulan IV</option>
     </select>
 
     <select id="filterTh">
         <option value="2025">2025</option>
-        <option value="2026" selected>2026</option>
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
     </select>
 </div>
 
@@ -173,12 +175,30 @@
     const loader = document.getElementById("loading-overlay");
 
     window.onload = async () => {
+        // --- PERBAIKAN: SET DEFAULT WAKTU OTOMATIS ---
+        const sekarang = new Date();
+        const bulan = sekarang.getMonth() + 1;
+        const tahun = sekarang.getFullYear();
+        const tw = Math.ceil(bulan / 3);
+
+        const selectTw = document.getElementById("filterTw");
+        const selectTh = document.getElementById("filterTh");
+
+        // Set value triwulan
+        selectTw.value = tw;
+        
+        // Set value tahun (jika tahun sekarang ada di opsi)
+        if ([...selectTh.options].some(opt => opt.value == tahun)) {
+            selectTh.value = tahun;
+        }
+        // --------------------------------------------
+
         await loadData();
         applyFilter();
     };
 
     async function loadData() {
-        loader.style.visibility = "visible"; // Tampilkan loading
+        loader.style.visibility = "visible"; 
         const th = document.getElementById("filterTh").value;
         try {
             const [r1, r2] = await Promise.all([
@@ -190,7 +210,7 @@
         } catch (e) { 
             console.error("Gagal sinkronisasi data", e); 
         } finally {
-            loader.style.visibility = "hidden"; // Sembunyikan loading
+            loader.style.visibility = "hidden"; 
         }
     }
 
