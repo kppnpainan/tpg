@@ -1,166 +1,114 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard TPG TKG Tamsil – KPPN Painan</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Potongan Tunjangan Guru KPPN Painan</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --blue-header: #1d3557;
+            --blue-banner: #23395d;
+            --blue-table-head: #4e89ae;
+            --bg-body: #f4f7f9;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-body); margin: 0; padding: 20px; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; visibility: hidden;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #ccc; border-top: 5px solid var(--blue-header);
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { margin-top: 15px; font-weight: bold; color: var(--blue-header); }
 
-<style>
-body{
-    font-family: Calibri, Arial;
-    background:#eef2f7;
-    margin:0;
-    padding:20px;
-    color:#333;
-}
+        /* Header Logo & Title */
+        .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .logo-apotu { height: 60px; border-radius: 5px; }
+        .title-text { line-height: 1.2; }
+        .title-text .main { font-size: 18px; font-weight: bold; color: #1d3557; display: block; }
+        .title-text .sub { font-size: 16px; font-weight: bold; color: #1d3557; }
 
-/* HEADER */
-.top-header{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:10px;
-}
-.logo-apotu{
-    height:55px;
-}
-.app-title{
-    font-size:20px;
-    font-weight:bold;
-    color:#1d3557;
-    line-height:1.2;
-}
+        /* Banner Biru Tengah */
+        .main-banner { 
+            background: var(--blue-banner); 
+            color: white; text-align: center; padding: 15px; border-radius: 8px; 
+            font-size: 18px; font-weight: bold; margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
 
-h2{
-    text-align:center;
-    background:#1d3557;
-    color:white;
-    padding:15px;
-    border-radius:8px;
-    margin-bottom:25px;
-}
+        /* Filter Area */
+        .filters { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 25px; flex-wrap: wrap; }
+        .mode-btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        #btnTriwulan { background: #1d3557; color: white; }
+        #btnAkumulasi { background: #ef4444; color: white; }
+        .mode-btn:hover { opacity: 0.8; }
+        
+        select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: white; min-width: 120px; font-size: 14px; }
 
-/* FILTER */
-.filters{
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    flex-wrap:wrap;
-    margin-bottom:15px;
-    align-items:center;
-}
+        /* Tabel */
+        .table-container { background: white; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--blue-table-head); color: white; padding: 12px; font-size: 16px; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 15px; color: #333; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        .txt-right { text-align: right; }
 
-.mode-buttons{
-    display:flex;
-    gap:10px;
-}
-.mode-btn{
-    padding:10px 18px;
-    border-radius:6px;
-    cursor:pointer;
-    border:none;
-    background:#1d3557;
-    color:white;
-    font-weight:bold;
-}
-.mode-btn.active{
-    background:#e63946;
-}
+        /* Chart Area */
+        .charts-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .chartBox { 
+            background: white; padding: 20px; border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 380px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .chartBox h4 { margin-top: 0; margin-bottom: 20px; color: #333; font-size: 16px; }
+        .canvas-wrapper { width: 100%; flex-grow: 1; position: relative; }
 
-select{
-    padding:9px 12px;
-    border-radius:6px;
-    border:1px solid #888;
-    background:white;
-    min-width:120px;
-}
+        /* Tombol Login */
+        .btn-login-container { display: flex; justify-content: center; margin-top: 20px; }
+        .btn-login { 
+            width: 100%; max-width: 1500px; padding: 15px; 
+            background: var(--blue-header); color: white; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: bold; 
+            font-size: 15px; letter-spacing: 1px; transition: 0.3s;
+        }
+        .btn-login:hover { background: #23395d; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-#loadingBox{
-    display:none;
-    text-align:center;
-    font-size:18px;
-    padding:12px;
-    margin-bottom:15px;
-}
-
-/* TABLE */
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-    background:white;
-    border-radius:8px;
-    overflow:hidden;
-}
-th,td{
-    padding:10px;
-    border-bottom:1px solid #ddd;
-    text-align:center;
-}
-th{
-    background:#457b9d;
-    color:white;
-}
-
-/* CHART */
-.charts-container{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap:20px;
-    margin-top:25px;
-}
-@media(max-width:1200px){
-    .charts-container{ grid-template-columns: repeat(2, 1fr); }
-}
-@media(max-width:768px){
-    .charts-container{ grid-template-columns: 1fr; }
-}
-.chartBox{
-    background:white;
-    padding:15px;
-    border-radius:8px;
-    text-align:center;
-    box-shadow:0 2px 6px rgba(0,0,0,0.15);
-}
-.pie-wrapper{
-    width:220px;
-    margin:auto;
-}
-
-.btn{
-    margin-top:25px;
-    display:block;
-    width:100%;
-    padding:12px;
-    background:#1d3557;
-    color:white;
-    border:none;
-    border-radius:8px;
-    font-size:18px;
-    cursor:pointer;
-}
-</style>
+        @media(max-width:1100px){ .charts-container { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
 <body>
 
+<!-- Loading Indicator -->
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Memuat Data...</div>
+</div>
+
 <div class="top-header">
-    <img src="apotu.png" class="logo-apotu">
-    <div class="app-title">
-        Aplikasi<br>Potongan Tunjangan Guru KPPN Painan
+    <img src="apotu.png" class="logo-apotu" alt="Logo Apotu">
+    <div class="title-text">
+        <span class="main">Aplikasi</span>
+        <span class="sub">Potongan Tunjangan Guru KPPN Painan</span>
     </div>
 </div>
 
-<h2>Penyaluran TPG, TKG dan Tamsil lingkup KPPN Painan</h2>
+<div class="main-banner">
+    Penyaluran TPG, TKG dan Tamsil lingkup KPPN Painan
+</div>
 
 <div class="filters">
-    <div class="mode-buttons">
-        <button class="mode-btn" id="btnTriwulan">Per Triwulan</button>
-        <button class="mode-btn active" id="btnAkumulasi">Akumulasi</button>
-    </div>
-
+    <button class="mode-btn" id="btnTriwulan">Per Triwulan</button>
+    <button class="mode-btn" id="btnAkumulasi">Akumulasi</button>
+    
     <select id="filterJenis">
         <option value="Semua">Semua Jns</option>
         <option value="TPG">TPG</option>
@@ -170,222 +118,172 @@ th{
 
     <select id="filterTw">
         <option value="1">Triwulan I</option>
-        <option value="2">Triwulan II</option>
+        <option value="2" selected>Triwulan II</option>
         <option value="3">Triwulan III</option>
         <option value="4">Triwulan IV</option>
     </select>
 
     <select id="filterTh">
-        <option value="2026">2026</option>
         <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
     </select>
 </div>
 
-<div id="loadingBox">⏳ Sedang memuat data...</div>
-
-<table>
-<thead>
-<tr>
-    <th>Jenis</th>
-    <th>Pagu</th>
-    <th>Realisasi</th>
-    <th>Penerima</th>
-    <th>PPh</th>
-    <th>JKN</th>
-    <th>Persentase</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th width="15%">Jenis</th>
+                <th width="20%">Pagu</th>
+                <th width="20%">Realisasi</th>
+                <th width="10%">Penerima</th>
+                <th width="15%">PPh</th>
+                <th width="15%">JKN</th>
+                <th width="5%">Persentase</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+</div>
 
 <div class="charts-container">
     <div class="chartBox">
-        <h3>Pagu vs Realisasi</h3>
-        <canvas id="barChart"></canvas>
+        <h4>Pagu vs Realisasi</h4>
+        <div class="canvas-wrapper"><canvas id="barChart"></canvas></div>
     </div>
     <div class="chartBox">
-        <h3>Penerima</h3>
-        <div class="pie-wrapper">
-            <canvas id="pieChart"></canvas>
-        </div>
+        <h4>Penerima</h4>
+        <div class="canvas-wrapper"><canvas id="pieChart"></canvas></div>
     </div>
     <div class="chartBox">
-        <h3>Realisasi vs PPh vs JKN</h3>
-        <canvas id="pphChart"></canvas>
+        <h4>Realisasi vs PPh vs JKN</h4>
+        <div class="canvas-wrapper"><canvas id="pphChart"></canvas></div>
     </div>
 </div>
 
-<button class="btn" onclick="gotoDetail()">Cek Detil Data</button>
+<div class="btn-login-container">
+    <button class="btn-login" onclick="location.href='login.html'">LOGIN PENGELOLAAN DATA</button>
+</div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzBLUJwYz3AYMYOIvrQ0gJJXEU-sOsbHXSkgnDTBW34LTyBOY_UT9qt7WVBjJ7eChJ1Ug/exec";
+    const API = "https://script.google.com/macros/s/AKfycbwNdz0Fh4OKFTZeH0fUAOxM0HjpnFz-mEZNKD-xozdNLe00YWnPXzdBSCJkT_--cZB60A/exec";
+    let dataAll = [], dataPagu = [], mode = "akumulasi";
+    let barChart, pieChart, pphChart;
 
-let sheet1=[], sheet2=[];
-let mode="akumulasi";
-let barChart, pieChart, pphChart;
+    const loader = document.getElementById("loading-overlay");
 
-function getCurrentTriwulan(){
-    const m = new Date().getMonth() + 1;
-    if(m<=3) return 1;
-    if(m<=6) return 2;
-    if(m<=9) return 3;
-    return 4;
-}
-
-function showLoading(){ loadingBox.style.display="block"; }
-function hideLoading(){ loadingBox.style.display="none"; }
-
-window.onload = async ()=>{
-    showLoading();
-
-    filterTw.value = getCurrentTriwulan();
-    updateModeUI();
-
-    await loadData();
-    applyFilter();
-
-    hideLoading();
-};
-
-async function loadData(){
-    sheet1 = (await fetch(API+"?mode=sheet1").then(r=>r.json())).data || [];
-    sheet2 = (await fetch(API+"?mode=sheet2").then(r=>r.json())).data || [];
-}
-
-btnTriwulan.onclick = ()=>{
-    mode="triwulan";
-    updateModeUI();
-    applyFilter();
-};
-btnAkumulasi.onclick = ()=>{
-    mode="akumulasi";
-    updateModeUI();
-    applyFilter();
-};
-
-function updateModeUI(){
-    btnTriwulan.classList.remove("active");
-    btnAkumulasi.classList.remove("active");
-    (mode==="triwulan"?btnTriwulan:btnAkumulasi).classList.add("active");
-}
-
-document.querySelectorAll("select").forEach(s=>{
-    s.onchange=()=>{
-        showLoading();
-        setTimeout(()=>{ applyFilter(); hideLoading(); },200);
-    };
-});
-
-function applyFilter(){
-    const jenis = filterJenis.value;
-    const tahun = filterTh.value;
-    const tw = Number(filterTw.value);
-
-    let list = sheet1.filter(r=>{
-        return new Date(r["Tanggal SP2D"]).getFullYear() == tahun;
-    });
-
-    if(jenis!=="Semua") list=list.filter(r=>r.Jenis===jenis);
-
-    let data = (mode==="triwulan")
-        ? list.filter(r=>Number(r.triwulan)===tw)
-        : list.filter(r=>Number(r.triwulan)<=tw);
-
-    renderTable(data,tahun);
-    renderCharts(data,tahun);
-}
-
-function renderTable(data,tahun){
-    tbody.innerHTML="";
-    let p=sheet2.find(r=>String(r.Tahun)===tahun)||{};
-    let pagu={
-        TPG:Number(p["Pagu TPG"]||0),
-        TKG:Number(p["Pagu TKG"]||0),
-        Tamsil:Number(p["Pagu Tamsil"]||0)
+    window.onload = async () => {
+        await loadData();
+        applyFilter();
     };
 
-    let real={TPG:0,TKG:0,Tamsil:0},pener={TPG:0,TKG:0,Tamsil:0},pph={TPG:0,TKG:0,Tamsil:0},jkn={TPG:0,TKG:0,Tamsil:0};
-
-    data.forEach(d=>{
-        real[d.Jenis]+=Number(d.Bruto)||0;
-        pener[d.Jenis]+=Number(d.Jml)||0;
-        pph[d.Jenis]+=Number(d.PPh)||0;
-        jkn[d.Jenis]+=Number(d.Jkn)||0;
-    });
-
-    ["TPG","TKG","Tamsil"].forEach(j=>{
-        tbody.innerHTML+=`
-        <tr>
-            <td>${j}</td>
-            <td>${pagu[j].toLocaleString()}</td>
-            <td>${real[j].toLocaleString()}</td>
-            <td>${pener[j].toLocaleString()}</td>
-            <td>${pph[j].toLocaleString()}</td>
-            <td>${jkn[j].toLocaleString()}</td>
-            <td>${pagu[j]?(real[j]/pagu[j]*100).toFixed(1):0}%</td>
-        </tr>`;
-    });
-}
-
-function renderCharts(data,tahun){
-    let sum={TPG:0,TKG:0,Tamsil:0},pener={TPG:0,TKG:0,Tamsil:0},pph={TPG:0,TKG:0,Tamsil:0},jkn={TPG:0,TKG:0,Tamsil:0};
-
-    data.forEach(d=>{
-        sum[d.Jenis]+=Number(d.Bruto)||0;
-        pener[d.Jenis]+=Number(d.Jml)||0;
-        pph[d.Jenis]+=Number(d.PPh)||0;
-        jkn[d.Jenis]+=Number(d.Jkn)||0;
-    });
-
-    let pg=sheet2.find(r=>String(r.Tahun)===tahun)||{};
-    let pagu=[
-        Number(pg["Pagu TPG"]||0),
-        Number(pg["Pagu TKG"]||0),
-        Number(pg["Pagu Tamsil"]||0)
-    ];
-
-    if(barChart) barChart.destroy();
-    barChart=new Chart(document.getElementById("barChart"),{
-        type:"bar",
-        data:{
-            labels:["TPG","TKG","Tamsil"],
-            datasets:[
-                {label:"Pagu",data:pagu,backgroundColor:"#8ecae6"},
-                {label:"Realisasi",data:[sum.TPG,sum.TKG,sum.Tamsil],backgroundColor:"#1d3557"}
-            ]
+    async function loadData() {
+        loader.style.visibility = "visible"; // Tampilkan loading
+        const th = document.getElementById("filterTh").value;
+        try {
+            const [r1, r2] = await Promise.all([
+                fetch(`${API}?mode=list&tahun=${th}`),
+                fetch(`${API}?mode=pagu`)
+            ]);
+            dataAll = (await r1.json()).data || [];
+            dataPagu = (await r2.json()).data || [];
+        } catch (e) { 
+            console.error("Gagal sinkronisasi data", e); 
+        } finally {
+            loader.style.visibility = "hidden"; // Sembunyikan loading
         }
+    }
+
+    document.querySelectorAll("select").forEach(s => {
+        s.onchange = async () => { if(s.id === "filterTh") await loadData(); applyFilter(); };
     });
 
-    if(pieChart) pieChart.destroy();
-    pieChart=new Chart(document.getElementById("pieChart"),{
-        type:"pie",
-        data:{
-            labels:["TPG","TKG","Tamsil"],
-            datasets:[{
-                data:[pener.TPG,pener.TKG,pener.Tamsil],
-                backgroundColor:["#1d3557","#457b9d","#a8dadc"]
-            }]
-        }
-    });
+    document.getElementById("btnTriwulan").onclick = () => { mode="triwulan"; applyFilter(); };
+    document.getElementById("btnAkumulasi").onclick = () => { mode="akumulasi"; applyFilter(); };
 
-    if(pphChart) pphChart.destroy();
-    pphChart=new Chart(document.getElementById("pphChart"),{
-        type:"bar",
-        data:{
-            labels:["TPG","TKG","Tamsil"],
-            datasets:[
-                {label:"Realisasi",data:[sum.TPG,sum.TKG,sum.Tamsil],backgroundColor:"#1d3557"},
-                {label:"PPh",data:[pph.TPG,pph.TKG,pph.Tamsil],backgroundColor:"#e76f51"},
-                {label:"JKN",data:[jkn.TPG,jkn.TKG,jkn.Tamsil],backgroundColor:"#2a9d8f"}
-            ]
-        }
-    });
-}
+    function applyFilter() {
+        let tw = Number(document.getElementById("filterTw").value);
+        let jns = document.getElementById("filterJenis").value;
+        let filtered = (mode === "triwulan") ? dataAll.filter(r => Number(r.triwulan) === tw) : dataAll.filter(r => Number(r.triwulan) <= tw);
+        if (jns !== "Semua") filtered = filtered.filter(r => r.Jenis === jns);
+        render(filtered);
+    }
 
-function gotoDetail(){
-    window.location.href="login.html";
-}
+    function render(data) {
+        const th = document.getElementById("filterTh").value;
+        const p = dataPagu.find(r => String(r.Tahun) === th) || {};
+        const paguMap = { TPG: Number(p["Pagu TPG"]||0), TKG: Number(p["Pagu TKG"]||0), Tamsil: Number(p["Pagu Tamsil"]||0) };
+        
+        let real = {TPG:0, TKG:0, Tamsil:0}, pener = {TPG:0, TKG:0, Tamsil:0}, pph = {TPG:0, TKG:0, Tamsil:0}, jkn = {TPG:0, TKG:0, Tamsil:0};
+
+        data.forEach(d => {
+            if(real.hasOwnProperty(d.Jenis)) {
+                real[d.Jenis] += Number(d.Bruto||0);
+                pener[d.Jenis] += Number(d.Jml||0);
+                pph[d.Jenis] += Number(d.PPh||0);
+                jkn[d.Jenis] += Number(d.Jkn||0);
+            }
+        });
+
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = "";
+        ["TPG", "TKG", "Tamsil"].forEach(j => {
+            let prs = paguMap[j] > 0 ? ((real[j]/paguMap[j])*100).toFixed(1) : 0;
+            tbody.innerHTML += `<tr>
+                <td style="font-weight:bold">${j}</td>
+                <td class="txt-right">${paguMap[j].toLocaleString('id-ID')}</td>
+                <td class="txt-right">${real[j].toLocaleString('id-ID')}</td>
+                <td>${pener[j].toLocaleString('id-ID')}</td>
+                <td class="txt-right">${pph[j].toLocaleString('id-ID')}</td>
+                <td class="txt-right">${jkn[j].toLocaleString('id-ID')}</td>
+                <td>${prs}%</td>
+            </tr>`;
+        });
+
+        updateCharts(real, pener, pph, jkn, paguMap);
+    }
+
+    function updateCharts(real, pener, pph, jkn, pagu) {
+        const labels = ["TPG", "TKG", "Tamsil"];
+        const leg = { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } };
+
+        if (barChart) barChart.destroy();
+        barChart = new Chart(document.getElementById("barChart"), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: "Pagu", data: labels.map(l => pagu[l]), backgroundColor: "#90e0ef" },
+                    { label: "Realisasi", data: labels.map(l => real[l]), backgroundColor: "#1d2d44" }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: leg } }
+        });
+
+        if (pieChart) pieChart.destroy();
+        pieChart = new Chart(document.getElementById("pieChart"), {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{ data: labels.map(l => pener[l]), backgroundColor: ["#1d2d44", "#4e89ae", "#90e0ef"] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: leg } }
+        });
+
+        if (pphChart) pphChart.destroy();
+        pphChart = new Chart(document.getElementById("pphChart"), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: "Realisasi", data: labels.map(l => real[l]), backgroundColor: "#1d2d44" },
+                    { label: "PPh", data: labels.map(l => pph[l]), backgroundColor: "#f28482" },
+                    { label: "JKN", data: labels.map(l => jkn[l]), backgroundColor: "#2a9d8f" }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: leg } }
+        });
+    }
 </script>
-
 </body>
 </html>
